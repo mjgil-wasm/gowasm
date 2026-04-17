@@ -1,0 +1,6 @@
+/target/
+**/*.rs.bk
+/web/generated/
+/docs/generated/
+__pycache__/
+*.pyc

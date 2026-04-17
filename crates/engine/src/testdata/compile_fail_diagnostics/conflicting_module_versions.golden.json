@@ -1,0 +1,27 @@
+{
+  "message": "module `example.com/remote` is loaded from multiple cached versions: [\"v1.2.3\", \"v1.3.0\"]\n--> __module_cache__/example.com/remote/@v1.2.3/first/first.go:3:8\n  |\n3 | import \"example.com/remote/second\"\n  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "__module_cache__/example.com/remote/@v1.2.3/first/first.go",
+  "position": {
+    "line": 3,
+    "column": 8
+  },
+  "source_span": {
+    "start": {
+      "line": 3,
+      "column": 8
+    },
+    "end": {
+      "line": 3,
+      "column": 35
+    }
+  },
+  "source_excerpt": {
+    "line": 3,
+    "text": "import \"example.com/remote/second\"",
+    "highlight_start_column": 8,
+    "highlight_end_column": 34
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

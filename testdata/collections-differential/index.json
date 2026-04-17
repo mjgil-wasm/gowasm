@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "generic_named_slices_and_callbacks",
+      "name": "generic named slices preserve mutation and callback ordering",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "[{1 a} {1 b} {2 y} {2 z}] [{1 a} {1 b} {2 y} {2 z}]\n[{2 z} {2 y} {1 b} {1 a}] [{2 z} {2 y} {1 b} {1 a}]\nmain.Bag[string] [go vm wasm] [go vm wasm] 3 5\n"
+    },
+    {
+      "id": "nil_slice_mutators",
+      "name": "nil mutating slice helpers stay nil",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true\ntrue\ntrue\ntrue\ntrue\ntrue\ntrue\ntrue\ntrue\n"
+    },
+    {
+      "id": "generic_maps_callbacks_and_nil",
+      "name": "generic map helpers cover nil clone copy delete and callback equality",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true true true\n3 0\n1 2 0 4\ntrue\n"
+    }
+  ]
+}

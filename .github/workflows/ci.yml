@@ -1,0 +1,129 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  portable-rust:
+    name: portable-rust (${{ matrix.os }}, rust ${{ matrix.rust }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rust: stable
+          - os: macos-latest
+            rust: stable
+          - os: windows-latest
+            rust: stable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - name: cargo test no-run
+        shell: bash
+        run: cargo test --release --workspace --no-run
+
+  linux-pinned-rust:
+    name: linux pinned rust checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.94.1
+          components: rustfmt
+          targets: wasm32-unknown-unknown
+      - name: cargo test no-run
+        run: cargo test --release --workspace --no-run
+      - name: cargo fmt check
+        run: cargo fmt --all --check
+      - name: build web artifact
+        run: bash ./scripts/build-web.sh
+
+  native-go-differential:
+    name: native go differential gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.94.1
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.3'
+      - name: differential gates
+        run: bash ./scripts/check-differential-release-gates.sh
+
+  fuzz-property:
+    name: fuzz and property harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.94.1
+      - name: fuzz harness
+        run: bash ./scripts/check-fuzz-harness.sh
+
+  browser-worker:
+    name: browser worker harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.94.1
+          targets: wasm32-unknown-unknown
+      - id: chrome
+        uses: browser-actions/setup-chrome@v1
+      - name: build web artifact
+        run: bash ./scripts/build-web.sh
+      - name: browser worker harness
+        env:
+          GOWASM_CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+        run: bash ./scripts/check-browser-worker.sh
+
+  browser-shell:
+    name: browser shell harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.94.1
+          targets: wasm32-unknown-unknown
+      - id: chrome
+        uses: browser-actions/setup-chrome@v1
+      - name: build web artifact
+        run: bash ./scripts/build-web.sh
+      - name: browser shell harness
+        env:
+          GOWASM_CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+        run: bash ./scripts/check-browser-shell.sh
+
+  browser-performance:
+    name: browser performance budgets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.94.1
+          targets: wasm32-unknown-unknown
+      - id: chrome
+        uses: browser-actions/setup-chrome@v1
+      - name: build web artifact
+        run: bash ./scripts/build-web.sh
+      - name: capture browser metrics
+        env:
+          GOWASM_CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+        run: bash ./scripts/capture-browser-performance.sh --output "$RUNNER_TEMP/browser-metrics.env"
+      - name: performance budgets
+        run: bash ./scripts/check-web-performance.sh --metrics "$RUNNER_TEMP/browser-metrics.env"

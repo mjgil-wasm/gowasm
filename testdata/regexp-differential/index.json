@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "captures_unicode_and_method_values",
+      "name": "captures unicode matching and bound method values",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true true\n[cafe-12 cafe 12]\n[東京-34 東京 34]\ngo<1> wasm<22> zig<333>\n"
+    },
+    {
+      "id": "invalid_patterns_and_empty_match_split",
+      "name": "invalid patterns and empty-match split behavior stay pinned",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "false true\ntrue\ntrue\n2 a b\n2 a b\n5  b b c cadaaae\n"
+    },
+    {
+      "id": "replacement_expansion_and_split_counts",
+      "name": "replacement expansion and split counts match native go",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "go<1> $ wasm<22> $ zig<333> $\n3 go wasm zig\n2 go wasm,zig\n"
+    }
+  ]
+}

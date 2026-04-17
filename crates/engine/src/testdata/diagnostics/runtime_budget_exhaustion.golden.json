@@ -1,0 +1,40 @@
+{
+  "kind": "run_result",
+  "stdout": "",
+  "diagnostics": [
+    {
+      "message_head": "instruction budget exhausted in function `main` after 50 instruction(s) (budget 50)",
+      "severity": "error",
+      "category": "runtime_budget_exhaustion",
+      "file_path": "main.go",
+      "position": {
+        "line": 4,
+        "column": 5
+      },
+      "source_span": {
+        "start": {
+          "line": 4,
+          "column": 5
+        },
+        "end": {
+          "line": 5,
+          "column": 5
+        }
+      },
+      "source_excerpt": {
+        "line": 4,
+        "text": "    for {",
+        "highlight_start_column": 5,
+        "highlight_end_column": 9
+      },
+      "suggested_action": "Increase the instruction budget or reduce work per run.",
+      "runtime": {
+        "root_message": "instruction budget exhausted in function `main` after 50 instruction(s) (budget 50)",
+        "category": "runtime_budget_exhaustion",
+        "stack_functions": [
+          "main"
+        ]
+      }
+    }
+  ]
+}

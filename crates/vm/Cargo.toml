@@ -1,0 +1,14 @@
+[package]
+name = "gowasm-vm"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+gowasm-host-types = { path = "../host-types" }
+icu_casemap = "2.1.1"
+icu_properties = "2.1.1"
+regex = "1"
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+unicode-general-category = "1.1.0"

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "targets": [
+    {
+      "name": "lexer_parser",
+      "seed_count": 3,
+      "iterations_per_seed": 10,
+      "mutated_case_count": 30,
+      "mutation_digest_hex": "9cb59c9d68851162"
+    },
+    {
+      "name": "type_strings_type_ast",
+      "seed_count": 3,
+      "iterations_per_seed": 10,
+      "mutated_case_count": 30,
+      "mutation_digest_hex": "7b69f3355dbe423b"
+    },
+    {
+      "name": "assignment_lowering",
+      "seed_count": 3,
+      "iterations_per_seed": 10,
+      "mutated_case_count": 30,
+      "mutation_digest_hex": "0180472ad87c6453"
+    },
+    {
+      "name": "json_runtime",
+      "seed_count": 3,
+      "iterations_per_seed": 10,
+      "mutated_case_count": 30,
+      "mutation_digest_hex": "6739f479b170aff2"
+    },
+    {
+      "name": "url_runtime",
+      "seed_count": 3,
+      "iterations_per_seed": 10,
+      "mutated_case_count": 30,
+      "mutation_digest_hex": "76225b2000e83fe0"
+    },
+    {
+      "name": "formatter",
+      "seed_count": 3,
+      "iterations_per_seed": 10,
+      "mutated_case_count": 30,
+      "mutation_digest_hex": "a3cc4d2e77a11d2a"
+    },
+    {
+      "name": "worker_protocol",
+      "seed_count": 3,
+      "iterations_per_seed": 10,
+      "mutated_case_count": 30,
+      "mutation_digest_hex": "2ba2bf2eb257efed"
+    },
+    {
+      "name": "vm_instruction_decoding",
+      "seed_count": 3,
+      "iterations_per_seed": 10,
+      "mutated_case_count": 30,
+      "mutation_digest_hex": "b46f296db14e4b54"
+    }
+  ]
+}

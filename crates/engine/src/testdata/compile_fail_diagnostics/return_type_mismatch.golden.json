@@ -1,0 +1,27 @@
+{
+  "message": "unsupported syntax: value of type `string` is not assignable to `int` in the current subset\n--> main.go:5:5\n  |\n5 |     return label\n  |     ^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "main.go",
+  "position": {
+    "line": 5,
+    "column": 5
+  },
+  "source_span": {
+    "start": {
+      "line": 5,
+      "column": 5
+    },
+    "end": {
+      "line": 5,
+      "column": 17
+    }
+  },
+  "source_excerpt": {
+    "line": 5,
+    "text": "    return label",
+    "highlight_start_column": 5,
+    "highlight_end_column": 16
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

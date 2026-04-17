@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "fmt_alias_interface_values",
+      "name": "fmt alias and interface values",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "label<go>\nproblem<7>\nlabel<go> label<go> \"label<go>\"\nmain.Labels{\"x\", \"y\"}\nmain.Labels(nil)\n"
+    },
+    {
+      "id": "runtime_model_edges",
+      "name": "runtime model edges",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true\nfalse\ntrue\nstring\nBox\n2\nmain.Labels\ninterface {}\ntrue\ntrue\nfalse\nmain.Labels\ntrue\nmain.Event\ngo\n"
+    },
+    {
+      "id": "struct_tag_and_interfaceability",
+      "name": "struct tag and interfaceability",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "Name name,omitempty true\ntrue false\nLabels value true\n3\ntrue\nfalse\n2 y\ntrue\n"
+    },
+    {
+      "id": "fmt_type_and_pointer_verbs",
+      "name": "fmt type and pointer verbs",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "*main.Box\n*main.Box\nmain.Labels\n*main.Box\n<nil>\n0x0\ntrue\ntrue\n0x0\ntrue\n0x0\ntrue\n0x0\ntrue\ntrue\n"
+    },
+    {
+      "id": "fmt_flag_and_precision_edges",
+      "name": "fmt flag and precision edges",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "-2a\n0x2a\n0x0000002a\n010\n0o10\n-101\n-0x000002a\n[0x0000002a][    42][+00042][gop][     gop]\n"
+    },
+    {
+      "id": "read_only_surface_matrix",
+      "name": "read only surface matrix",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "5\n[]string\n*main.Box\ninterface {}\nchan int\nmain.Handler\ntrue\n2 string int\n2 bool error\ntrue\nint\ntrue\ntrue\ntrue\ntrue\ntrue\nmain.Labels\n2\ny\ntrue\nmain.Labels\n2\na\n"
+    }
+  ]
+}

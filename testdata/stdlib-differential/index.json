@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "packages": [
+    {
+      "id": "fmt_reflect",
+      "name": "fmt and reflect differential corpus",
+      "packages": ["fmt", "reflect"],
+      "corpus_index": "../reflect-fmt-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "json",
+      "name": "encoding/json differential corpus",
+      "packages": ["encoding/json"],
+      "corpus_index": "../json-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "text",
+      "name": "strings bytes unicode differential corpus",
+      "packages": ["strings", "bytes", "unicode", "unicode/utf8"],
+      "corpus_index": "../text-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "strconv",
+      "name": "strconv differential corpus",
+      "packages": ["strconv"],
+      "corpus_index": "../strconv-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "errors",
+      "name": "errors differential corpus",
+      "packages": ["errors"],
+      "corpus_index": "../errors-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "path_filepath",
+      "name": "path filepath differential corpus",
+      "packages": ["path", "path/filepath"],
+      "corpus_index": "../path-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "io_fs",
+      "name": "io fs differential corpus",
+      "packages": ["io/fs"],
+      "corpus_index": "../io-fs-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "net_url",
+      "name": "net url differential corpus",
+      "packages": ["net/url"],
+      "corpus_index": "../url-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "regexp",
+      "name": "regexp differential corpus",
+      "packages": ["regexp"],
+      "corpus_index": "../regexp-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "collections",
+      "name": "sort slices maps cmp differential corpus",
+      "packages": ["sort", "slices", "maps", "cmp"],
+      "corpus_index": "../collections-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "math",
+      "name": "math differential corpus",
+      "packages": ["math", "math/bits"],
+      "corpus_index": "../math-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "crypto_encoding",
+      "name": "crypto and encoding differential corpus",
+      "packages": [
+        "crypto/md5",
+        "crypto/sha1",
+        "crypto/sha256",
+        "crypto/sha512",
+        "encoding/base64",
+        "encoding/hex"
+      ],
+      "corpus_index": "../crypto-encoding-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "time_context_http",
+      "name": "time context net http differential corpus",
+      "packages": ["time", "context", "net/http"],
+      "corpus_index": "../time-context-http-differential/index.json",
+      "expected_output_field": "stdout",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    },
+    {
+      "id": "log",
+      "name": "log differential corpus",
+      "packages": ["log"],
+      "corpus_index": "../log-differential/index.json",
+      "expected_output_field": "stderr",
+      "host_independent": true,
+      "allowed_browser_deviations": []
+    }
+  ]
+}

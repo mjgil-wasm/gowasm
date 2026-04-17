@@ -1,0 +1,28 @@
+name: build wasm artifact
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-wasm-artifact:
+    name: build wasm artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.94.1
+          targets: wasm32-unknown-unknown
+      - name: build web artifact
+        run: bash ./scripts/build-web.sh
+      - name: upload wasm artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gowasm-engine-wasm-${{ github.sha }}
+          path: web/generated/gowasm_engine_wasm.wasm
+          if-no-files-found: error
+          retention-days: 14

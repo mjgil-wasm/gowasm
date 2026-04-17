@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>gowasm browser shell cancellation tests</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #11141b;
+    color: #edf0f5;
+    font: 15px/1.6 "Iosevka Term", "IBM Plex Mono", monospace;
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    color: #9fd2ff;
+  }
+
+  p {
+    margin: 0 0 16px;
+    color: #b3bfd1;
+    max-width: 80ch;
+  }
+
+  #results {
+    white-space: pre-wrap;
+    margin-bottom: 16px;
+  }
+
+  #summary {
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+
+  .pass {
+    color: #74d99f;
+  }
+
+  .fail {
+    color: #ff8f8f;
+  }
+
+  #shell-frame {
+    width: min(1280px, calc(100vw - 48px));
+    height: 920px;
+    border: 1px solid #3a4559;
+    border-radius: 12px;
+    background: #fff;
+  }
+</style>
+</head>
+<body>
+<h1>browser shell cancellation tests</h1>
+<p>
+  This harness drives the real <code>index.html</code> surface through run, snippet,
+  package-test, HTTP-wait, and forced-restart cancellation plus recovery behavior.
+</p>
+<div id="results"></div>
+<div id="summary"></div>
+<iframe id="shell-frame" title="browser shell cancellation harness target" src="about:blank"></iframe>
+<script type="module" src="./test-browser-shell-cancellation-runner.js"></script>
+</body>
+</html>

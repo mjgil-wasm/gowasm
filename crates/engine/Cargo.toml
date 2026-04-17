@@ -1,0 +1,13 @@
+[package]
+name = "gowasm-engine"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+gowasm-compiler = { path = "../compiler" }
+gowasm-host-types = { path = "../host-types" }
+gowasm-lexer = { path = "../lexer" }
+gowasm-parser = { path = "../parser" }
+gowasm-vm = { path = "../vm" }
+serde = { workspace = true }
+serde_json = { workspace = true }

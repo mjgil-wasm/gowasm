@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "time_values_and_context_cancel",
+      "name": "time values and context cancellation stay pinned",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "1234567000 1500 true true\nv\ntrue context canceled\nfalse true\n"
+    },
+    {
+      "id": "http_helpers_and_request_clone",
+      "name": "net http host independent helpers stay pinned",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true 1994-11-06 08:49:37\nPOST https://example.com/api?q=1\ntext/plain\n2 3\nX-Test I'm a teapot\n"
+    }
+  ]
+}

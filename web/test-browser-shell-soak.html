@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>browser shell soak tests</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    margin: 0;
+    padding: 1rem;
+    line-height: 1.5;
+  }
+  h1 { margin-top: 0; }
+  #summary.pass { color: #0a7f2e; }
+  #summary.fail { color: #b42318; white-space: pre-wrap; }
+  #results, #artifact {
+    white-space: pre-wrap;
+    border: 1px solid #999;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+  }
+  #artifact {
+    max-height: 20rem;
+    overflow: auto;
+  }
+  iframe {
+    width: 100%;
+    min-height: 60rem;
+    border: 1px solid #999;
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+    background: white;
+  }
+</style>
+</head>
+<body>
+<h1>browser shell soak tests</h1>
+<p>
+  This harness drives the real <code>index.html</code> product surface through repeated
+  archive import, edit, lint, format, module load, run, snippet, package test, cancel,
+  and cache restore cycles, and emits a seeded replay artifact.
+</p>
+<div id="results"></div>
+<div id="summary"></div>
+<pre id="artifact"></pre>
+<iframe id="shell-frame" title="browser shell soak harness target" src="about:blank"></iframe>
+<script type="module" src="./test-browser-shell-soak.js"></script>
+</body>
+</html>

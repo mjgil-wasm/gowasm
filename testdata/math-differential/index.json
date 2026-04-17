@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "nan_inf_signed_zero",
+      "name": "nan inf and signed-zero helpers match native go",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true\ntrue\nfalse\ntrue\n+Inf -Inf NaN\n"
+    },
+    {
+      "id": "subnormal_decomposition_and_zero_signs",
+      "name": "subnormal decomposition and signed-zero splits stay pinned",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "0.5 -1073\n-1074.0\n-1074\n+Inf 0\ntrue 0\ntrue true\n"
+    },
+    {
+      "id": "bits_and_rounding_helpers",
+      "name": "math bits and rounding helpers match native go",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "8\n55\n2\n9\n1\n6917529027641081856\n281474976710656\n3.0 -3.0\n1.0\n1.0\n"
+    }
+  ]
+}

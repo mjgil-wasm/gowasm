@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "join_multiwrap_and_as",
+      "name": "join, multi-wrap, and errors.As",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "first\nsecond\ntrue true true\nmulti: first + second\ntrue true true\ntrue 7\ntrue outer: problem:7\n"
+    },
+    {
+      "id": "os_sentinels_and_as",
+      "name": "os sentinel wrapping and errors.As",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true true true\nfalse true\ntrue true\n"
+    }
+  ]
+}

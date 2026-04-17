@@ -1,0 +1,9 @@
+[package]
+name = "gowasm-parser"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+gowasm-lexer = { path = "../lexer" }
+serde = { workspace = true }
+thiserror = { workspace = true }

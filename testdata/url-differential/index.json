@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "edge_parse_escape_and_error_text",
+      "name": "edge parse escaping and error text match native go",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true /a/b /a%2Fb q=1 frag/part frag%2Fpart\n/a%2Fb frag%2Fpart /a%2Fb?q=1\nspace+key%2Fx%2By%3F%3Dz%26\nspace key/x+y?=z& true\nmy%2Fcool+blog&about%2Cstuff\nmy/cool+blog&about,stuff true\nparse \"bad\\nurl\": net/url: invalid control character in URL\ninvalid URL escape \"%zz\"\ninvalid URL escape \"%zz\"\n"
+    },
+    {
+      "id": "relative_resolution_and_join_path",
+      "name": "relative resolution and join path behavior stay pinned",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "https://alice:secret@example.com/a/d/e?x=2\nhttps://cdn.example.com//asset/v1\nhttps://alice:secret@example.com/a/b/c?q=1#next\ntrue https://alice:secret@example.com/g%20h\nhttps://alice:secret@example.com/a/b/c/c%20d/e/f?q=1#base\nhttps://example.com/base/x%20y/z/ true\nmailto:alice@example.com\nparse \"bad\\nurl\": net/url: invalid control character in URL\n"
+    },
+    {
+      "id": "values_userinfo_and_method_values",
+      "name": "values userinfo and bound method values match native go",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "alice@example.com\np@ss:/? true\nhttps://alice%40example.com:p%40ss%3A%2F%3F@example.com/path\nhttps://alice%40example.com:xxxxx@example.com/path\na=1&a=two+words&space+key=x%2By&z=last\n1 true false\na=1&a=two+words&space+key=x%2By\n"
+    }
+  ]
+}

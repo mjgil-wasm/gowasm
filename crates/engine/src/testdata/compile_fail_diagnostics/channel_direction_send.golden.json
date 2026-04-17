@@ -1,0 +1,27 @@
+{
+  "message": "unsupported syntax: cannot send on receive-only channel type `<-chan int`\n--> main.go:5:5\n  |\n5 |     recv <- 1\n  |     ^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "main.go",
+  "position": {
+    "line": 5,
+    "column": 5
+  },
+  "source_span": {
+    "start": {
+      "line": 5,
+      "column": 5
+    },
+    "end": {
+      "line": 5,
+      "column": 14
+    }
+  },
+  "source_excerpt": {
+    "line": 5,
+    "text": "    recv <- 1",
+    "highlight_start_column": 5,
+    "highlight_end_column": 13
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "path_lexical_and_match",
+      "name": "path lexical helpers and match semantics stay pinned",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "b ../b /a/b .gz true false\n../ a\n/b/c /a/c []\ntrue <nil> true <nil> false <nil> false syntax error in pattern\n"
+    },
+    {
+      "id": "filepath_unix_lexical_and_localize",
+      "name": "filepath unix lexical helpers and localize behavior match native go",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "b ../b /a/b .gz true false\n../ a\n[] a/b /b/c\n. <nil>\n../../d <nil>\ntrue Rel: can't make b relative to ../a\ntrue true true false false false\na/b <nil>\n. <nil>\ntrue invalid path\na/b/c a/b/c a,b,,c 0 []\n"
+    }
+  ]
+}

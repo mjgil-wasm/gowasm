@@ -1,0 +1,41 @@
+{
+  "kind": "run_result",
+  "stdout": "",
+  "diagnostics": [
+    {
+      "message_head": "division by zero in function `explode`: left int value `1`, right int value `0`",
+      "severity": "error",
+      "category": "runtime_trap",
+      "file_path": "main.go",
+      "position": {
+        "line": 5,
+        "column": 5
+      },
+      "source_span": {
+        "start": {
+          "line": 5,
+          "column": 5
+        },
+        "end": {
+          "line": 5,
+          "column": 17
+        }
+      },
+      "source_excerpt": {
+        "line": 5,
+        "text": "    _ = 1 / value",
+        "highlight_start_column": 5,
+        "highlight_end_column": 16
+      },
+      "suggested_action": null,
+      "runtime": {
+        "root_message": "division by zero in function `explode`: left int value `1`, right int value `0`",
+        "category": "runtime_trap",
+        "stack_functions": [
+          "explode",
+          "main"
+        ]
+      }
+    }
+  ]
+}

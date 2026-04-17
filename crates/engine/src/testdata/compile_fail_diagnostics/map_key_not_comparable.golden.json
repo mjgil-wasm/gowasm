@@ -1,0 +1,27 @@
+{
+  "message": "unsupported syntax: map key type `[]int` is not comparable\n--> main.go:4:5\n  |\n4 |     var values map[[]int]int\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "main.go",
+  "position": {
+    "line": 4,
+    "column": 5
+  },
+  "source_span": {
+    "start": {
+      "line": 4,
+      "column": 5
+    },
+    "end": {
+      "line": 4,
+      "column": 29
+    }
+  },
+  "source_excerpt": {
+    "line": 4,
+    "text": "    var values map[[]int]int",
+    "highlight_start_column": 5,
+    "highlight_end_column": 28
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

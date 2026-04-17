@@ -1,0 +1,27 @@
+{
+  "message": "import `example.com/missing` could not be resolved while loading package `.`\n--> main.go:3:8\n  |\n3 | import \"example.com/missing\"\n  |        ^^^^^^^^^^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "main.go",
+  "position": {
+    "line": 3,
+    "column": 8
+  },
+  "source_span": {
+    "start": {
+      "line": 3,
+      "column": 8
+    },
+    "end": {
+      "line": 3,
+      "column": 29
+    }
+  },
+  "source_excerpt": {
+    "line": 3,
+    "text": "import \"example.com/missing\"",
+    "highlight_start_column": 8,
+    "highlight_end_column": 28
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

@@ -1,0 +1,12 @@
+[package]
+name = "gowasm-engine-wasm"
+edition.workspace = true
+version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+gowasm-engine = { path = "../engine" }
+gowasm-host-types = { path = "../host-types" }
+serde_json.workspace = true

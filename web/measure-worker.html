@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>gowasm worker performance</title>
+    <style>
+      :root {
+        --bg: #11131a;
+        --panel: #1a1f2b;
+        --ink: #f4f7fb;
+        --muted: #9aa6bd;
+        --accent: #68d7b9;
+        --line: #2e3648;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, rgba(104, 215, 185, 0.12), transparent 28%),
+          radial-gradient(circle at bottom right, rgba(247, 196, 110, 0.08), transparent 30%),
+          var(--bg);
+        color: var(--ink);
+        font:
+          16px/1.55 "Iosevka Aile", "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(860px, calc(100vw - 32px));
+        margin: 32px auto;
+        display: grid;
+        gap: 16px;
+      }
+
+      .panel {
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--panel);
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font:
+          700 2rem/1 "Iosevka Etoile", "IBM Plex Sans Condensed", sans-serif;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, var(--accent), #47a7ff);
+        color: #061017;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+
+      .status {
+        color: var(--muted);
+      }
+
+      pre {
+        margin: 0;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #0f1420;
+        color: var(--ink);
+        font:
+          15px/1.55 "Iosevka Term", "IBM Plex Mono", monospace;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="panel">
+        <h1>worker performance</h1>
+        <p>
+          Measures the real browser-worker path against the generated Wasm artifact and emits
+          `key=value` metrics for `scripts/check-web-performance.sh`, including the current
+          worker/page memory baseline, representative module-cache storage growth, and one
+          real browser-shell interaction slice through `index.html`.
+        </p>
+      </section>
+
+      <section class="panel">
+        <div class="toolbar">
+          <strong>Metrics</strong>
+          <button id="rerun-button" type="button">Rerun Measurement</button>
+        </div>
+        <p class="status" id="status">Waiting to start...</p>
+        <pre id="metrics"></pre>
+      </section>
+
+      <iframe
+        id="shell-frame"
+        title="worker performance shell probe"
+        src="about:blank"
+        hidden
+      ></iframe>
+    </main>
+
+    <script type="module" src="./measure-worker.js"></script>
+  </body>
+</html>

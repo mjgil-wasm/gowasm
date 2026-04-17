@@ -1,0 +1,27 @@
+{
+  "message": "unsupported module feature `require` in `go.mod`; the current subset only supports `module` and `go` directives\n--> go.mod:5:1\n  |\n5 | require example.com/remote v1.2.3\n  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "go.mod",
+  "position": {
+    "line": 5,
+    "column": 1
+  },
+  "source_span": {
+    "start": {
+      "line": 5,
+      "column": 1
+    },
+    "end": {
+      "line": 5,
+      "column": 34
+    }
+  },
+  "source_excerpt": {
+    "line": 5,
+    "text": "require example.com/remote v1.2.3",
+    "highlight_start_column": 1,
+    "highlight_end_column": 33
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

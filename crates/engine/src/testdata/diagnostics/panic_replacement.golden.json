@@ -1,0 +1,41 @@
+{
+  "kind": "run_result",
+  "stdout": "",
+  "diagnostics": [
+    {
+      "message_head": "panic in function `main`: replacement",
+      "severity": "error",
+      "category": "runtime_panic",
+      "file_path": "main.go",
+      "position": {
+        "line": 4,
+        "column": 5
+      },
+      "source_span": {
+        "start": {
+          "line": 4,
+          "column": 5
+        },
+        "end": {
+          "line": 4,
+          "column": 24
+        }
+      },
+      "source_excerpt": {
+        "line": 4,
+        "text": "    panic(\"replacement\")",
+        "highlight_start_column": 5,
+        "highlight_end_column": 23
+      },
+      "suggested_action": null,
+      "runtime": {
+        "root_message": "panic in function `main`: replacement",
+        "category": "runtime_panic",
+        "stack_functions": [
+          "cleanup",
+          "main"
+        ]
+      }
+    }
+  ]
+}

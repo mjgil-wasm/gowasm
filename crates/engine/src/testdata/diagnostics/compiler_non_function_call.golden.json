@@ -1,0 +1,34 @@
+{
+  "kind": "diagnostics",
+  "stdout": null,
+  "diagnostics": [
+    {
+      "message_head": "unsupported syntax: calling local variable `value` is not supported: call target `value` has type `int`; expected a function value, named function, or supported builtin",
+      "severity": "error",
+      "category": "compile_error",
+      "file_path": "main.go",
+      "position": {
+        "line": 5,
+        "column": 5
+      },
+      "source_span": {
+        "start": {
+          "line": 5,
+          "column": 5
+        },
+        "end": {
+          "line": 5,
+          "column": 12
+        }
+      },
+      "source_excerpt": {
+        "line": 5,
+        "text": "    value()",
+        "highlight_start_column": 5,
+        "highlight_end_column": 11
+      },
+      "suggested_action": "Fix the source error and compile again.",
+      "runtime": null
+    }
+  ]
+}

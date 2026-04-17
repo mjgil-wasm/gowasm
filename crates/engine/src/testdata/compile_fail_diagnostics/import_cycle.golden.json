@@ -1,0 +1,27 @@
+{
+  "message": "import cycle detected: example.com/app -> example.com/app/lib -> example.com/app\n--> lib/lib.go:3:8\n  |\n3 | import \"example.com/app\"\n  |        ^^^^^^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "lib/lib.go",
+  "position": {
+    "line": 3,
+    "column": 8
+  },
+  "source_span": {
+    "start": {
+      "line": 3,
+      "column": 8
+    },
+    "end": {
+      "line": 3,
+      "column": 25
+    }
+  },
+  "source_excerpt": {
+    "line": 3,
+    "text": "import \"example.com/app\"",
+    "highlight_start_column": 8,
+    "highlight_end_column": 24
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

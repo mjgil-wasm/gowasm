@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "targets": [
+    {
+      "name": "lexer_parser",
+      "iterations_per_seed": 10,
+      "seeds": [
+        {
+          "name": "basic_main",
+          "data": "package main\n\nfunc main() {\n\tprintln(\"hi\")\n}\n"
+        },
+        {
+          "name": "control_flow",
+          "data": "package main\n\nfunc main() {\n\tfor i := 0; i < 3; i++ {\n\t\tif i%2 == 0 {\n\t\t\tprintln(i)\n\t\t}\n\t}\n}\n"
+        },
+        {
+          "name": "composite_literals",
+          "data": "package main\n\nvar values = []int{1, 2, 3}\n\nfunc main() {\n\tprintln(values[1])\n}\n"
+        }
+      ]
+    },
+    {
+      "name": "type_strings_type_ast",
+      "iterations_per_seed": 10,
+      "seeds": [
+        {
+          "name": "map_slice",
+          "data": "map[string][]int"
+        },
+        {
+          "name": "function_shape",
+          "data": "func(string, *int) (bool, error)"
+        },
+        {
+          "name": "channel_array_pointer",
+          "data": "chan<- *[3]float64"
+        }
+      ]
+    },
+    {
+      "name": "assignment_lowering",
+      "iterations_per_seed": 10,
+      "seeds": [
+        {
+          "name": "short_decl_pair",
+          "data": "package main\n\nfunc pair() (int, int) {\n\treturn 1, 2\n}\n\nfunc main() {\n\ta, b := pair()\n\tif a < b {\n\t\treturn\n\t}\n}\n"
+        },
+        {
+          "name": "assignment_list",
+          "data": "package main\n\nfunc values() (int, int, int) {\n\treturn 3, 4, 5\n}\n\nfunc main() {\n\tvar a int\n\tvar b int\n\tvar c int\n\ta, b, c = values()\n\tif a+b == c {\n\t\treturn\n\t}\n}\n"
+        },
+        {
+          "name": "comma_ok",
+          "data": "package main\n\nfunc main() {\n\tm := map[string]int{\"go\": 1}\n\tv, ok := m[\"go\"]\n\tif ok && v == 1 {\n\t\treturn\n\t}\n}\n"
+        }
+      ]
+    },
+    {
+      "name": "json_runtime",
+      "iterations_per_seed": 10,
+      "seeds": [
+        {
+          "name": "object",
+          "data": "{\"name\":\"go\",\"count\":3,\"ok\":true}"
+        },
+        {
+          "name": "nested_array",
+          "data": "[1,{\"items\":[\"a\",\"b\"]},false]"
+        },
+        {
+          "name": "escaped_string",
+          "data": "{\"text\":\"line\\nnext\",\"slash\":\"https:\\/\\/example.com\"}"
+        }
+      ]
+    },
+    {
+      "name": "url_runtime",
+      "iterations_per_seed": 10,
+      "seeds": [
+        {
+          "name": "absolute",
+          "data": "https://example.com/path?q=go+lang#frag"
+        },
+        {
+          "name": "relative",
+          "data": "../api/v1/items?limit=10"
+        },
+        {
+          "name": "userinfo",
+          "data": "https://alice:secret@example.com:8443/root"
+        }
+      ]
+    },
+    {
+      "name": "formatter",
+      "iterations_per_seed": 10,
+      "seeds": [
+        {
+          "name": "simple_main",
+          "data": "package main\n\nfunc main(){\nprintln(\"hi\")\n}\n"
+        },
+        {
+          "name": "composite",
+          "data": "package main\n\nvar values=[]int{\n1,\n2,\n3,\n}\n"
+        },
+        {
+          "name": "comments",
+          "data": "package main\n\nfunc main() {\n\t// keep comment\n\tprintln(`raw`)\n}\n"
+        }
+      ]
+    },
+    {
+      "name": "worker_protocol",
+      "iterations_per_seed": 10,
+      "seeds": [
+        {
+          "name": "boot",
+          "data": "{\"kind\":\"boot\"}"
+        },
+        {
+          "name": "format",
+          "data": "{\"kind\":\"format\",\"files\":[{\"path\":\"main.go\",\"contents\":\"package main\\n\"}]}"
+        },
+        {
+          "name": "run",
+          "data": "{\"kind\":\"run\",\"files\":[{\"path\":\"main.go\",\"contents\":\"package main\\nfunc main(){}\\n\"}],\"entry_path\":\"main.go\",\"host_time_unix_nanos\":null,\"host_time_unix_millis\":null}"
+        }
+      ]
+    },
+    {
+      "name": "vm_instruction_decoding",
+      "iterations_per_seed": 10,
+      "seeds": [
+        {
+          "name": "load_int",
+          "data": "{\"LoadInt\":{\"dst\":0,\"value\":7}}"
+        },
+        {
+          "name": "load_string",
+          "data": "{\"LoadString\":{\"dst\":1,\"value\":\"go\"}}"
+        },
+        {
+          "name": "return_void",
+          "data": "{\"Return\":{\"src\":null}}"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "quote_unquote_unicode_octal",
+      "name": "quote, unquote, unicode, and octal escapes",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "\"\\a\\n世\"\n\"\\u4e16\\n\"\n\"\\x00\\\"\\\\\"\na\n <nil>\n255 false x <nil>\n955 true x <nil>\n"
+    },
+    {
+      "id": "numeric_edges_and_function_values",
+      "name": "numeric edge cases and strconv function values",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "ff\n255 true\n63 <nil>\n1.5 <nil>\n63 <nil>\nstrconv.ParseInt: parsing \"10\": invalid base 1\nstrconv.ParseInt: parsing \"10\": invalid bit size 65\nstrconv.ParseUint: parsing \"10\": invalid base 1\n"
+    }
+  ]
+}

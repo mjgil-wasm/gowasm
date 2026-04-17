@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "import_path": "example/helpers",
+  "dependencies": {
+    "source_paths": [
+      "helpers/helpers.go"
+    ],
+    "direct_dependencies": [],
+    "reverse_dependencies": [
+      "main"
+    ],
+    "source_origin": {
+      "kind": "workspace"
+    }
+  },
+  "runtime_metadata": {
+    "function_start": 0,
+    "functions": [],
+    "methods": [],
+    "global_start": 0,
+    "global_count": 0,
+    "user_type_offset": 0,
+    "user_type_span": 0,
+    "type_inventory": [],
+    "entry_function": null,
+    "package_init_function": null
+  },
+  "diagnostics": {
+    "debug_infos": []
+  },
+  "exports": {
+    "qualified_function_ids": {},
+    "qualified_generic_function_instances": [],
+    "qualified_function_result_types": {},
+    "qualified_function_types": {},
+    "qualified_variadic_functions": [],
+    "qualified_globals": {},
+    "qualified_structs": {},
+    "qualified_interfaces": {},
+    "qualified_pointers": {},
+    "qualified_aliases": {},
+    "qualified_method_function_ids": {},
+    "qualified_promoted_method_bindings": {},
+    "qualified_method_sets": {}
+  },
+  "generics": null
+}

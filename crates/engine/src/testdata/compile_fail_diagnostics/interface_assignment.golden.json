@@ -1,0 +1,27 @@
+{
+  "message": "unsupported syntax: type `int` does not satisfy interface `Shape` in the current subset: missing method `Area() int`\n--> main.go:9:5\n  |\n9 |     var shape Shape = value\n  |     ^^^^^^^^^^^^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "main.go",
+  "position": {
+    "line": 9,
+    "column": 5
+  },
+  "source_span": {
+    "start": {
+      "line": 9,
+      "column": 5
+    },
+    "end": {
+      "line": 9,
+      "column": 28
+    }
+  },
+  "source_excerpt": {
+    "line": 9,
+    "text": "    var shape Shape = value",
+    "highlight_start_column": 5,
+    "highlight_end_column": 27
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "print_spacing_and_reflection",
+      "name": "print spacing and reflection",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "gowasm\nvalue:7 [x y]\nmain.Labels main.Labels{\"z\"} [1 2]\n"
+    },
+    {
+      "id": "prefix_and_single_newline",
+      "name": "prefix and single newline",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "LOG: ready 7\nLOG: done:ok\nLOG: tail\n"
+    }
+  ]
+}

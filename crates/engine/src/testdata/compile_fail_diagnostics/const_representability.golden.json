@@ -1,0 +1,27 @@
+{
+  "message": "unsupported syntax: constant 300 is not representable as `byte` in the current subset\n--> main.go:4:5\n  |\n4 |     var b byte = 300\n  |     ^^^^^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "main.go",
+  "position": {
+    "line": 4,
+    "column": 5
+  },
+  "source_span": {
+    "start": {
+      "line": 4,
+      "column": 5
+    },
+    "end": {
+      "line": 4,
+      "column": 21
+    }
+  },
+  "source_excerpt": {
+    "line": 4,
+    "text": "    var b byte = 300",
+    "highlight_start_column": 5,
+    "highlight_end_column": 20
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

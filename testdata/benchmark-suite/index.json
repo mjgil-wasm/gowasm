@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "benchmarks": [
+    {
+      "id": "parser_smoke",
+      "name": "parser smoke",
+      "kind": "command",
+      "metric_key": "parser_smoke_ms",
+      "budget_key": "parser_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-parser", "tests_control_flow", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["parser", "command"]
+    },
+    {
+      "id": "compiler_smoke",
+      "name": "compiler smoke",
+      "kind": "command",
+      "metric_key": "compiler_smoke_ms",
+      "budget_key": "compiler_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-compiler", "tests_compiler_phases", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["compiler", "command"]
+    },
+    {
+      "id": "vm_smoke",
+      "name": "vm smoke",
+      "kind": "command",
+      "metric_key": "vm_smoke_ms",
+      "budget_key": "vm_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-vm", "tests_scheduler", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["vm", "command"]
+    },
+    {
+      "id": "gc_smoke",
+      "name": "gc smoke",
+      "kind": "command",
+      "metric_key": "gc_smoke_ms",
+      "budget_key": "gc_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-vm", "tests_gc_auto", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["gc", "command"]
+    },
+    {
+      "id": "maps_smoke",
+      "name": "maps smoke",
+      "kind": "command",
+      "metric_key": "maps_smoke_ms",
+      "budget_key": "maps_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-compiler", "tests_stdlib_maps", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["maps", "command"]
+    },
+    {
+      "id": "channels_smoke",
+      "name": "channels smoke",
+      "kind": "command",
+      "metric_key": "channels_smoke_ms",
+      "budget_key": "channels_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-vm", "tests_channels", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["channels", "command"]
+    },
+    {
+      "id": "select_smoke",
+      "name": "select smoke",
+      "kind": "command",
+      "metric_key": "select_smoke_ms",
+      "budget_key": "select_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-vm", "tests_select_runtime", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["select", "command"]
+    },
+    {
+      "id": "json_smoke",
+      "name": "json smoke",
+      "kind": "command",
+      "metric_key": "json_smoke_ms",
+      "budget_key": "json_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-compiler", "tests_stdlib_json_interfaces", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["json", "command"]
+    },
+    {
+      "id": "fmt_smoke",
+      "name": "fmt smoke",
+      "kind": "command",
+      "metric_key": "fmt_smoke_ms",
+      "budget_key": "fmt_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-compiler", "tests_stdlib_fmt", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["fmt", "command"]
+    },
+    {
+      "id": "package_tests_smoke",
+      "name": "package tests smoke",
+      "kind": "command",
+      "metric_key": "package_tests_smoke_ms",
+      "budget_key": "package_tests_smoke_ms",
+      "argv": ["cargo", "test", "--release", "-p", "gowasm-engine", "tests_test_runner", "--", "--nocapture"],
+      "runs": 1,
+      "tags": ["package-tests", "command"]
+    },
+    {
+      "id": "module_cache_smoke",
+      "name": "module cache smoke",
+      "kind": "browser_metric",
+      "metric_key": "module_cache_smoke_ms",
+      "budget_key": "module_cache_smoke_ms",
+      "source_metric": "module_load_ms",
+      "tags": ["browser", "module-cache"]
+    },
+    {
+      "id": "worker_startup_smoke",
+      "name": "worker startup smoke",
+      "kind": "browser_metric",
+      "metric_key": "worker_startup_smoke_ms",
+      "budget_key": "worker_startup_smoke_ms",
+      "source_metric": "worker_boot_ms",
+      "tags": ["browser", "worker-startup"]
+    },
+    {
+      "id": "browser_run_smoke",
+      "name": "browser run smoke",
+      "kind": "browser_metric",
+      "metric_key": "browser_run_smoke_ms",
+      "budget_key": "browser_run_smoke_ms",
+      "source_metric": "shell_run_ms",
+      "tags": ["browser", "browser-run"]
+    }
+  ]
+}

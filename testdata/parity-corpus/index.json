@@ -1,0 +1,302 @@
+{
+  "schema_version": 2,
+  "cases": [
+    {
+      "id": "local_package_chain",
+      "name": "local package chain",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "go.mod",
+        "main.go",
+        "report/report.go",
+        "catalog/catalog.go",
+        "seed/seed.go"
+      ],
+      "expected_stdout": "{\n  \"title\": \"local-imports\",\n  \"primary\": \"alpha\",\n  \"count\": 2,\n  \"ready\": true\n}\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": []
+    },
+    {
+      "id": "generic_box_report",
+      "name": "generic box report",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "go.mod",
+        "main.go",
+        "pipeline.go"
+      ],
+      "expected_stdout": "{\n  \"first\": \"ada\",\n  \"last\": \"lin\",\n  \"count\": 2\n}\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": []
+    },
+    {
+      "id": "mixed_local_remote_chain",
+      "name": "mixed local and remote chain",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "go.mod",
+        "main.go",
+        "report/report.go",
+        "names/names.go",
+        "__module_cache__/example.com/remote/@v1.2.3/go.mod",
+        "__module_cache__/example.com/remote/@v1.2.3/greeter/greeter.go"
+      ],
+      "expected_stdout": "{\n  \"first\": \"hello:Ada\",\n  \"second\": \"hello:Lin\",\n  \"count\": 2\n}\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": []
+    },
+    {
+      "id": "imported_named_type_chain",
+      "name": "imported named type chain",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "go.mod",
+        "main.go",
+        "report/report.go",
+        "__module_cache__/example.com/remote/@v1.2.3/go.mod",
+        "__module_cache__/example.com/remote/@v1.2.3/cards/cards.go"
+      ],
+      "expected_stdout": "Ada\nremote:Ada\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": []
+    },
+    {
+      "id": "imported_generic_instance_chain",
+      "name": "imported generic instance chain",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "go.mod",
+        "main.go",
+        "report/report.go",
+        "__module_cache__/example.com/remote/@v1.2.3/go.mod",
+        "__module_cache__/example.com/remote/@v1.2.3/cards/cards.go"
+      ],
+      "expected_stdout": "Ada\nremote-box\nremote-box\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": []
+    },
+    {
+      "id": "imported_generic_template_chain",
+      "name": "imported generic template chain",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "go.mod",
+        "main.go",
+        "report/report.go",
+        "__module_cache__/example.com/remote/@v1.2.3/go.mod",
+        "__module_cache__/example.com/remote/@v1.2.3/cards/cards.go"
+      ],
+      "expected_stdout": "Ada\nremote-template\nremote-template\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": []
+    },
+    {
+      "id": "profile_sync",
+      "name": "profile sync",
+      "entry_path": "main.go",
+      "host_time_unix_millis": 900,
+      "workspace_files": [
+        "app.go",
+        "main.go",
+        "users/alice/.config/demo/banner.txt"
+      ],
+      "expected_stdout": "{\n  \"Banner\": \"hello-config\\n\",\n  \"Status\": \"200 OK\",\n  \"Body\": \"remote-profile\",\n  \"FetchedAt\": 900\n}\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": [
+        {
+          "kind": "fetch",
+          "method": "GET",
+          "url": "https://example.com/profile",
+          "response_status_code": 200,
+          "response_status": "200 OK",
+          "response_url": "https://example.com/profile",
+          "response_headers": [
+            {
+              "name": "Content-Type",
+              "values": ["text/plain"]
+            }
+          ],
+          "response_body": "remote-profile"
+        }
+      ]
+    },
+    {
+      "id": "workspace_manifest",
+      "name": "workspace manifest",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "main.go",
+        "manifest.go",
+        "notes/alpha.txt",
+        "notes/beta.txt"
+      ],
+      "expected_stdout": "{\n  \"Root\": \"/notes\",\n  \"Files\": [\n    {\n      \"Name\": \"alpha.txt\",\n      \"Body\": \"first\\n\"\n    },\n    {\n      \"Name\": \"beta.txt\",\n      \"Body\": \"second\\n\"\n    }\n  ]\n}\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": []
+    },
+    {
+      "id": "concurrent_feed_poller",
+      "name": "concurrent feed poller",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "main.go",
+        "poller.go"
+      ],
+      "expected_stdout": "{\n  \"Count\": 2,\n  \"Results\": [\n    {\n      \"Name\": \"alpha\",\n      \"Status\": \"200 OK\",\n      \"Body\": \"feed-alpha\"\n    },\n    {\n      \"Name\": \"beta\",\n      \"Status\": \"200 OK\",\n      \"Body\": \"feed-beta\"\n    }\n  ]\n}\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": [
+        {
+          "kind": "fetch",
+          "method": "GET",
+          "url": "https://example.com/feed-alpha",
+          "response_status_code": 200,
+          "response_status": "200 OK",
+          "response_url": "https://example.com/feed-alpha",
+          "response_headers": [
+            {
+              "name": "Content-Type",
+              "values": ["text/plain"]
+            }
+          ],
+          "response_body": "feed-alpha"
+        },
+        {
+          "kind": "fetch",
+          "method": "GET",
+          "url": "https://example.com/feed-beta",
+          "response_status_code": 200,
+          "response_status": "200 OK",
+          "response_url": "https://example.com/feed-beta",
+          "response_headers": [
+            {
+              "name": "Content-Type",
+              "values": ["text/plain"]
+            }
+          ],
+          "response_body": "feed-beta"
+        }
+      ]
+    },
+    {
+      "id": "remote_tagged_profile_report",
+      "name": "remote tagged profile report",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "app.go",
+        "main.go"
+      ],
+      "expected_stdout": "{\n  \"summary\": \"{Name:Ada Hidden:keep Alias:go}\",\n  \"field_tag\": \"json:\\\"name\\\"\",\n  \"alias\": \"go\"\n}\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": [
+        {
+          "kind": "fetch",
+          "method": "GET",
+          "url": "https://example.com/profile.json",
+          "response_status_code": 200,
+          "response_status": "200 OK",
+          "response_url": "https://example.com/profile.json",
+          "response_headers": [
+            {
+              "name": "Content-Type",
+              "values": ["application/json"]
+            }
+          ],
+          "response_body": "{\"name\":\"Ada\",\"Hidden\":\"skip\",\"alias_name\":\"go\"}"
+        }
+      ]
+    },
+    {
+      "id": "remote_collection_report",
+      "name": "remote collection report",
+      "entry_path": "main.go",
+      "host_time_unix_millis": null,
+      "workspace_files": [
+        "app.go",
+        "main.go"
+      ],
+      "expected_stdout": "{\n  \"title\": \"demo\",\n  \"first\": \"Ada\",\n  \"second_count\": 5,\n  \"alpha\": 1,\n  \"beta\": 2,\n  \"item_count\": 2\n}\n",
+      "expected_outcomes": {
+        "compiler_vm": { "status": "pass" },
+        "engine": { "status": "pass" },
+        "browser_worker": { "status": "pass" },
+        "native_go": { "status": "pass" }
+      },
+      "steps": [
+        {
+          "kind": "fetch",
+          "method": "GET",
+          "url": "https://example.com/collections.json",
+          "response_status_code": 200,
+          "response_status": "200 OK",
+          "response_url": "https://example.com/collections.json",
+          "response_headers": [
+            {
+              "name": "Content-Type",
+              "values": ["application/json"]
+            }
+          ],
+          "response_body": "{\"title\":\"demo\",\"items\":[{\"name\":\"Ada\",\"count\":3},{\"name\":\"Bob\",\"count\":5}],\"scores\":{\"alpha\":1,\"beta\":2}}"
+        }
+      ]
+    }
+  ]
+}

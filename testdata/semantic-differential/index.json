@@ -1,0 +1,929 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "short_decl_rebind",
+      "name": "short declaration mixed rebind",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "2 3\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "blank_identifier_flow",
+      "name": "blank identifier flow",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "4 5\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "named_result_defer",
+      "name": "named result bare return",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "3\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "multi_result_forwarding",
+      "name": "multi-result forwarding",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "go 7\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "short_decl_block_scope",
+      "name": "short declaration block scope shadowing",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "inner 7\nouter\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "short_decl_if_for_init_scope",
+      "name": "short declaration if and for init scope",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "7\n100\n3 99\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "short_decl_select_case_scope",
+      "name": "short declaration select case scope",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "case\nouter\n0 false\n99\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "short_decl_range_scope",
+      "name": "short declaration range scope",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "0 go\n1 wasm\nouter\nx\ny\nafter\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "short_decl_comma_ok_multi_result",
+      "name": "short declaration comma ok and multi result",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "ok true\n9 true\n5 true\n7 go\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "short_decl_no_new_name_rejection",
+      "name": "short declaration no new name rejection",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:8:10: no new variables on left side of :=\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "no new variables on the left side of `:=` in the current scope"
+    },
+    {
+      "id": "channel_nil_and_directional_flow",
+      "name": "channel nil identity and directional flow",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true\nfalse\n7\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "channel_blocking_handoff_and_close_wakeups",
+      "name": "channel blocking handoff and close wakeups",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "7\n0 false\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "channel_buffered_close_and_range",
+      "name": "channel buffered close and range",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "8\n9\n0 false\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "channel_directional_rejection",
+      "name": "channel directional assignment rejection",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:6:9: cannot use send (variable of type chan<- int) as <-chan int value in assignment\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "channel value of type `chan<- int` is not assignable to `<-chan int`"
+    },
+    {
+      "id": "select_dense_ready_rotation",
+      "name": "select dense ready rotation",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "44\n22\n44\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "select_default_dense_ready_rotation",
+      "name": "select default dense ready rotation",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "44\n22\n44\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "select_all_nil_default",
+      "name": "select all nil default fallback",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "default\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "select_close_wakeup_multi_case",
+      "name": "select blocked close wakeup multi case",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "closed 0 false\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "assignment_list_direct_values",
+      "name": "assignment list direct values",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "1 go\n2 wasm\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "assignment_list_tail_call",
+      "name": "assignment list tail call expansion",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:11:28: assignment mismatch: 3 variables but 2 values\n",
+      "expected_native_go_exit_code": 1
+    },
+    {
+      "id": "assignment_list_tail_comma_ok",
+      "name": "assignment list tail comma ok expansion",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:12:29: assignment mismatch: 3 variables but 2 values\n./main.go:17:28: assignment mismatch: 3 variables but 2 values\n./main.go:20:32: assignment mismatch: 3 variables but 2 values\n",
+      "expected_native_go_exit_code": 1
+    },
+    {
+      "id": "assignment_list_short_decl_too_few",
+      "name": "assignment list short declaration count mismatch",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:6:22: assignment mismatch: 2 variables but only returns 1 value\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "`only` returns 1 value(s), not 2"
+    },
+    {
+      "id": "assignment_list_assign_too_few",
+      "name": "assignment list assignment count mismatch",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:7:21: assignment mismatch: 2 variables but 1 value\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "cannot infer result 2 type for multi-result assignment in the current subset"
+    },
+    {
+      "id": "closure_capture_mutation_and_defer",
+      "name": "closure capture mutation and defer",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "run 2\ndefer 2\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "closure_goroutine_capture",
+      "name": "closure goroutine capture",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "worker\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "closure_recursive_scope",
+      "name": "closure recursive scope",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "5\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "generic_closure_values",
+      "name": "generic closure values",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "42\n42\ntrue\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "generic_inline_constraints",
+      "name": "generic inline constraints",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "inline\n7\ngo\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "generic_inline_constraint_rejection",
+      "name": "generic inline constraint rejection",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:8:10: bool does not satisfy interface{int | string} (bool missing in int | string)\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "type argument `bool` does not satisfy `T`"
+    },
+    {
+      "id": "generic_imported_inline_constraints",
+      "name": "generic imported inline constraints",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "go.mod",
+        "main.go",
+        "lib/lib.go"
+      ],
+      "expected_native_go_stdout": "imported\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "generic_recursive_inline_constraints",
+      "name": "generic recursive inline constraints",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "11 true\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "package_init_file_and_var_order",
+      "name": "package init file and var order",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go",
+        "z_defs.go",
+        "a_defs.go"
+      ],
+      "expected_native_go_stdout": "a 40\nz 41\n40 41\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "package_init_function_dependency",
+      "name": "package init function dependency",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "41 42\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "package_init_import_dag_order",
+      "name": "package init import dag order",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "go.mod",
+        "main.go",
+        "left/left.go",
+        "right/right.go",
+        "shared/shared.go"
+      ],
+      "expected_native_go_stdout": "shared\nleft\nright\nmain\nleft-ready right-ready\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "package_init_var_cycle",
+      "name": "package init var cycle",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:3:5: initialization cycle for first\n\t./main.go:3:5: first refers to\n\t./main.go:4:5: second refers to\n\t./main.go:3:5: first\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "package initialization cycle involving first, second"
+    },
+    {
+      "id": "promoted_methods",
+      "name": "promoted methods",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "label:ada\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "interface_nil_comparisons",
+      "name": "interface nil comparisons",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true\nfalse\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "nil_cross_type_matrix",
+      "name": "cross-type nil matrix",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true 0 0\ntrue 0 0 false\ntrue\ntrue\ntrue\ntrue\n3 1 1\n1 4\n5\n6\nset\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "typed_nil_interface_formatting",
+      "name": "typed nil interface formatting",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "[] map[] <nil> <nil> <nil> <nil> <nil>\ntrue false <nil>\nfalse false [] map[]\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "interface_method_set_satisfaction",
+      "name": "interface method-set satisfaction",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "read:ada outer\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "interface_method_set_failed_assignment",
+      "name": "interface method-set failed assignment",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:14:23: cannot use Wrong{} (value of type Wrong) as Needs value in variable declaration: Wrong does not implement Needs (wrong type for method Read)\n\t\thave Read(string) int\n\t\twant Read(int) int\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "method `Read` has signature `Read(string) int`, want `Read(int) int`"
+    },
+    {
+      "id": "interface_method_set_assertion_signature_mismatch",
+      "name": "interface method-set assertion signature mismatch",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "false false\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "interface_method_set_interface_conversion",
+      "name": "interface method-set interface conversion",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "label:ada ada true 9\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "type_assert_pointer_typed_nil",
+      "name": "type assertion typed nil pointer",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true true\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "type_switch_nil_cases",
+      "name": "type switch nil cases",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "false false\nnil\ntrue\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "type_switch_generic_interface",
+      "name": "type switch generic interface narrowing",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "9\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "type_assert_switch_imported_interface",
+      "name": "type assertion and switch imported interface",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "cfg true\nfalse\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "method_values_bound_interface_and_defer",
+      "name": "method values through bound receivers, interfaces, and defer/go",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "hi:ada\nturing\ngo\ndone\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "addressability",
+      "name": "addressability",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "3\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "pointer_selectors",
+      "name": "pointer selectors",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "5\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "addressable_pointer_receivers",
+      "name": "addressable pointer receivers",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "6 6\n3 3\n4 5 5\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "promoted_pointer_methods_interface",
+      "name": "promoted pointer methods through interface dispatch",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "inner inner inner\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "address_of_temporary_index",
+      "name": "address of temporary slice index",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "9\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "map_index_address_rejection",
+      "name": "map index address rejection",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:5:7: invalid operation: cannot take address of values[\"x\"] (map index expression of type int)\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "cannot take the address of a map or string index"
+    },
+    {
+      "id": "pointer_receiver_temporary_index",
+      "name": "pointer receiver temporary slice index",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "2\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "map_nil_lookup_delete_and_struct_keys",
+      "name": "map nil lookup delete and struct keys",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true 0 0 false\n7 11 false 2\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "slice_bounds_capacity",
+      "name": "slice bounds and capacity",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "0 4\n2 3 2 3\n0 0\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "slice_copy_overlap",
+      "name": "slice copy overlap",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "3 [1 1 2 3]\n2 [2 3 2 3]\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "slice_nil_empty",
+      "name": "nil versus empty slices",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true 0 0\nfalse 0 0\n[7] 1 1\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "slice_multidimensional_aliasing",
+      "name": "multidimensional slice aliasing",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "[1 9] [1 9]\n[3 8] 2 2\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "array_value_assignment",
+      "name": "array value assignment semantics",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "[1 2 3] [9 2 3]\n[1 7 3] [9 2 3]\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "const_numeric_defaulting",
+      "name": "const numeric defaulting and byte rune representability",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "6 6 6.5 255 65\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "const_make_bounds",
+      "name": "const identifiers in make bounds",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "2 3\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "const_generic_args",
+      "name": "const arguments through generic inference",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "7 1.5\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "const_byte_overflow",
+      "name": "const byte overflow rejection",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:4:18: cannot use limit (untyped int constant 256) as byte value in variable declaration (overflows)\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "not representable as `byte`"
+    },
+    {
+      "id": "const_shift_overflow",
+      "name": "const shift overflow rejection",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0,
+      "expected_compiler_error_substring": "overflows supported int range"
+    },
+    {
+      "id": "conversion_numeric_edges",
+      "name": "numeric conversion edges",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "1 255 2\n\"\u2603\" \"\u2603\"\n1\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "conversion_invalid_string_to_int",
+      "name": "invalid string to int conversion rejection",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:4:10: cannot convert \"65\" (untyped string constant) to type int\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "cannot convert expression of type `string` to `int`"
+    },
+    {
+      "id": "conversion_const_byte_overflow",
+      "name": "const byte conversion overflow rejection",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:4:11: constant 300 overflows byte\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "constant 300 is not representable as `byte`"
+    },
+    {
+      "id": "strconv_numeric_boundaries",
+      "name": "strconv numeric boundaries",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "9223372036854775807 true true\n+Inf true\n1.2345679\n1.23456789\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "string_utf8_range_and_slice",
+      "name": "string utf8 range and slice",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "8 226 152 131 231 149 140\n\"\u2603\"\n0 19990\n3 97\n4 30028\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "string_rune_conversions",
+      "name": "string rune and byte conversions",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "3\n104 233 19990\n\"\u2603\u00e9A\"\n3\n104 195 169\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "string_invalid_utf8_helpers",
+      "name": "string invalid utf8 helpers",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "false\n2\nfalse\n2\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "string_formatting_bytes_and_quotes",
+      "name": "string formatting bytes and quotes",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "\"h\u00e9\"\n68c3a9\n\"\u2603\"\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "control_flow_nested_labels",
+      "name": "control flow nested labels",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "keep 0 0\nkeep 1 0\nkeep 2 0\ndone\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "control_flow_fallthrough_limits",
+      "name": "control flow fallthrough limits",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "",
+      "expected_native_go_stderr": "# semanticdifferential\n./main.go:6:3: cannot fallthrough final case in switch\n",
+      "expected_native_go_exit_code": 1,
+      "expected_compiler_error_substring": "`fallthrough` cannot appear in the final `switch` clause"
+    },
+    {
+      "id": "control_flow_switch_scoping",
+      "name": "control flow switch scoping",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "inner 1\ndefault 0\nafter 3\nouter\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "control_flow_type_switch_init",
+      "name": "control flow type switch init",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "int 7 true\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "control_flow_range_supported_types",
+      "name": "control flow range supported types",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "go.mod",
+        "main.go"
+      ],
+      "expected_native_go_stdout": "array 0 4\narray 1 5\nslice 0 6\nslice 1 7\nmap a 1\nmap b 2\nstring 0 104\nstring 1 233\nint 0\nint 1\nint 2\nchan 8\nchan 9\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "unwind_panic_replacement",
+      "name": "unwind panic replacement",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "first\nsecond\nrecover replacement\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "unwind_recover_eligibility",
+      "name": "unwind recover eligibility",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "helper true\ndirect boom\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    },
+    {
+      "id": "unwind_goroutine_local_recover",
+      "name": "unwind goroutine local recover",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "worker boom\nmain continues\n",
+      "expected_native_go_stderr": "",
+      "expected_native_go_exit_code": 0
+    }
+  ]
+}

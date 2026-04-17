@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "strings_unicode_aliases",
+      "name": "strings and unicode aliases",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "true true [go wasm-zig] [go- wasm-zig] HÉLLÖ\ntrue true 923 107 453\n"
+    },
+    {
+      "id": "bytes_invalid_utf8_and_empty",
+      "name": "bytes invalid UTF-8 and empty-edge semantics",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "[[255] [97] [192]]\n[97]\n[97 192]\n[255 97]\n0\n3\n0\n6\n[45 255 45 65 195 40 98]\n[45 255 45 65 45 195 45 40 45 98 45]\n[[255] [65] [195] [40] [98]]\n[[255] [65 195 40 98]]\n[[255] [65] [195] [40] [98]]\n[255 32 97 32 192]\ntrue\n"
+    },
+    {
+      "id": "bytes_callbacks_and_aliases",
+      "name": "bytes callbacks and alias-backed helpers",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "0\n4\n[]\n[[255] [97] [192]]\n[239 191 189 65 239 191 189 40 66]\n[[97 44] [98 44 99]]\n[98 111 100 121] true\n[98 111 100 121] true\n[108 101 102 116] [114 105 103 104 116] true\n"
+    }
+  ]
+}

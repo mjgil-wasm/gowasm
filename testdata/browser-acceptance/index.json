@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "worker_end_to_end_capabilities",
+      "name": "worker browser smoke covers protocol, output, and diagnostics",
+      "page": "web/ci-worker-smoke.html",
+      "element_id": "summary",
+      "expect_substrings": ["all worker ci smoke tests passed"],
+      "reject_substrings": ["failed"],
+      "timeout_seconds": 240,
+      "tags": [
+        "worker",
+        "worker_protocol",
+        "output",
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "worker_cancellation_recovery",
+      "name": "worker cancellation and recovery acceptance",
+      "page": "web/test-worker-cancellation.html",
+      "element_id": "summary",
+      "expect_substrings": ["all worker cancellation tests passed"],
+      "reject_substrings": ["failure"],
+      "timeout_seconds": 240,
+      "tags": [
+        "worker",
+        "worker_protocol",
+        "context_cancellation",
+        "worker_recovery",
+        "fetch",
+        "timers",
+        "output"
+      ]
+    },
+    {
+      "id": "shell_module_cache_and_workspace_fs",
+      "name": "browser shell module cache and workspace fs acceptance",
+      "page": "web/test-browser-shell-cache.html",
+      "element_id": "summary",
+      "expect_substrings": ["all browser shell cache tests passed"],
+      "reject_substrings": ["failure"],
+      "timeout_seconds": 240,
+      "tags": [
+        "shell",
+        "dom",
+        "module_cache",
+        "workspace_fs",
+        "output"
+      ]
+    },
+    {
+      "id": "shell_snapshot_roundtrip",
+      "name": "browser shell snapshot acceptance",
+      "page": "web/test-browser-shell-snapshot.html",
+      "element_id": "summary",
+      "expect_substrings": ["all browser shell snapshot tests passed"],
+      "reject_substrings": ["failure"],
+      "timeout_seconds": 240,
+      "tags": [
+        "shell",
+        "dom",
+        "snapshots",
+        "output"
+      ]
+    },
+    {
+      "id": "shell_project_archive_import",
+      "name": "browser shell project archive import acceptance",
+      "page": "web/test-browser-shell-archive.html",
+      "element_id": "summary",
+      "expect_substrings": ["all browser shell archive tests passed"],
+      "reject_substrings": ["failure"],
+      "timeout_seconds": 240,
+      "tags": [
+        "shell",
+        "dom",
+        "project_import",
+        "workspace_fs",
+        "output"
+      ]
+    },
+    {
+      "id": "shell_cancellation_and_recovery",
+      "name": "browser shell cancellation and recovery acceptance",
+      "page": "web/test-browser-shell-cancellation.html",
+      "element_id": "summary",
+      "expect_substrings": ["all browser shell cancellation tests passed"],
+      "reject_substrings": ["failure"],
+      "timeout_seconds": 240,
+      "tags": [
+        "shell",
+        "dom",
+        "context_cancellation",
+        "worker_recovery",
+        "fetch",
+        "timers",
+        "output"
+      ]
+    },
+    {
+      "id": "shell_error_ui_diagnostics",
+      "name": "browser shell diagnostics acceptance",
+      "page": "web/test-browser-shell-error-ui.html",
+      "element_id": "summary",
+      "expect_substrings": ["all browser shell error UI tests passed"],
+      "reject_substrings": ["failure"],
+      "timeout_seconds": 240,
+      "tags": [
+        "shell",
+        "dom",
+        "diagnostics",
+        "output"
+      ]
+    }
+  ]
+}

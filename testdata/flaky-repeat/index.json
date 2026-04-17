@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "targets": [
+    {
+      "id": "vm_scheduler",
+      "name": "vm scheduler invariants",
+      "kind": "command",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "-p",
+        "gowasm-vm",
+        "tests_scheduler",
+        "--",
+        "--nocapture"
+      ],
+      "tags": ["scheduler", "vm"]
+    },
+    {
+      "id": "vm_select_runtime",
+      "name": "vm select runtime",
+      "kind": "command",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "-p",
+        "gowasm-vm",
+        "tests_select_runtime",
+        "--",
+        "--nocapture"
+      ],
+      "tags": ["select", "vm"]
+    },
+    {
+      "id": "compiler_sync_concurrency",
+      "name": "compiler sync and concurrency slice",
+      "kind": "command",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "-p",
+        "gowasm-compiler",
+        "tests_stdlib_sync",
+        "--",
+        "--nocapture"
+      ],
+      "tags": ["concurrency", "compiler"]
+    },
+    {
+      "id": "browser_shell_soak",
+      "name": "browser shell soak replay",
+      "kind": "browser_page",
+      "page": "web/test-browser-shell-soak.html",
+      "page_query_template": "seed={seed}&cycles=1",
+      "element_id": "summary",
+      "expect_substrings": ["all browser shell soak tests passed"],
+      "reject_substrings": ["FAIL"],
+      "timeout_seconds": 360,
+      "artifact_element_id": "artifact",
+      "tags": ["browser", "soak"]
+    }
+  ]
+}

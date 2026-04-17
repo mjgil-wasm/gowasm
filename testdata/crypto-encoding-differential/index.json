@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "hash_known_vectors_and_empty",
+      "name": "checksum helpers match native go known vectors and empty input",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "93 65 64 42 16 23 197 146\n212 29 140 217 236 248 66 126\n170 244 198 29 174 169 67 77\n218 57 163 238 175 216 7 9\n44 242 77 186 147 139 152 36\n227 176 196 66 120 82 184 85\n155 113 210 36 188 222 192 67\n207 131 225 53 249 39 218 62\n64 16\n64 20\n64 32\n128 64\n"
+    },
+    {
+      "id": "hex_roundtrip_and_errors",
+      "name": "hex helper round trips and decode diagnostics match native go",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "000f10ff\n4 0 15 16 255 true\nencoding/hex: odd length hex string\nencoding/hex: invalid byte: U+007A 'z'\n"
+    },
+    {
+      "id": "base64_values_wrappers_and_method_values",
+      "name": "base64 encoding values method values and invalid decode stay pinned",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "SGVsbG8=\n2 251 255 true\n2 251 255 true\n\n0 true\nillegal base64 data at input byte 0\n"
+    }
+  ]
+}

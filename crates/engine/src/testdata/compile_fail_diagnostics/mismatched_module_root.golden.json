@@ -1,0 +1,27 @@
+{
+  "message": "invalid module root `__module_cache__/example.com/remote/@v1.2.3/go.mod`: declares module `example.com/not-remote` but is loaded under `example.com/remote`\n--> __module_cache__/example.com/remote/@v1.2.3/go.mod:1:1\n  |\n1 | module example.com/not-remote\n  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "__module_cache__/example.com/remote/@v1.2.3/go.mod",
+  "position": {
+    "line": 1,
+    "column": 1
+  },
+  "source_span": {
+    "start": {
+      "line": 1,
+      "column": 1
+    },
+    "end": {
+      "line": 1,
+      "column": 30
+    }
+  },
+  "source_excerpt": {
+    "line": 1,
+    "text": "module example.com/not-remote",
+    "highlight_start_column": 1,
+    "highlight_end_column": 29
+  },
+  "suggested_action": "Fix the source error and compile again."
+}

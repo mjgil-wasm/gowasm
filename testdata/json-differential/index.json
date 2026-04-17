@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "tagged_round_trip",
+      "name": "tagged round trip",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "Ada keep go 0 <nil>\n{\"name\":\"Ada\",\"alias_name\":\"go\"} <nil>\n"
+    },
+    {
+      "id": "quoted_and_numeric_errors",
+      "name": "quoted and numeric errors",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "json: cannot unmarshal number 1.5 into Go struct field Payload.count of type int 7\njson: cannot unmarshal number 9223372036854775808 into Go struct field Payload.Items of type int 2 1\njson: cannot unmarshal number 9223372036854775808 into Go struct field Payload.Scores of type int 5 0\njson: cannot unmarshal number 1e309 into Go struct field Payload.score of type float64 2.5\n"
+    },
+    {
+      "id": "embedded_field_precedence",
+      "name": "embedded field precedence",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "outer true decoded true true true true <nil>\n"
+    },
+    {
+      "id": "wrapper_reset",
+      "name": "wrapper reset",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "Ada 9 Ada 9 true Ada 0 keep 7 <nil>\nAda 9 <nil>\n"
+    },
+    {
+      "id": "interface_values",
+      "name": "interface values",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "{\"count\":3,\"name\":\"Ada\",\"nested\":[true,null]} <nil> <nil>\n{\"Any\":{\"score\":1.5},\"List\":[1,true,null,\"go\",{\"count\":2}],\"Meta\":{\"active\":true,\"label\":\"ok\",\"missing\":null,\"stale\":false}} <nil> <nil>\ntrue true true true go true ok true true\n"
+    },
+    {
+      "id": "custom_methods_and_nil_pointer",
+      "name": "custom methods and nil pointer",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go"
+      ],
+      "expected_native_go_stdout": "{\"kind\":\"payload\"} <nil>\n{\"Label\":\"label\\u003cgo\\u003e\",\"Both\":\"json\"} <nil>\nnull <nil>\n"
+    }
+  ]
+}

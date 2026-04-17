@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "cgo_import",
+      "name": "cgo via import C remains unsupported",
+      "entry_path": "main.go",
+      "files": [
+        {
+          "path": "main.go",
+          "contents": "package main\n\nimport \"C\"\n\nfunc main() {}\n"
+        }
+      ],
+      "expected_message_substring": "unsupported syntax: cgo via `import \"C\"` is outside the supported subset",
+      "expected_category": "compile_error",
+      "tags": ["compiler", "runtime", "browser", "cgo"]
+    },
+    {
+      "id": "plugin_import",
+      "name": "plugin package remains unsupported",
+      "entry_path": "main.go",
+      "files": [
+        {
+          "path": "main.go",
+          "contents": "package main\n\nimport \"plugin\"\n\nfunc main() {}\n"
+        }
+      ],
+      "expected_message_substring": "unsupported syntax: package `plugin` is outside the supported subset",
+      "expected_category": "compile_error",
+      "tags": ["compiler", "runtime", "browser", "plugin"]
+    },
+    {
+      "id": "os_exec_import",
+      "name": "os exec package remains unsupported",
+      "entry_path": "main.go",
+      "files": [
+        {
+          "path": "main.go",
+          "contents": "package main\n\nimport \"os/exec\"\n\nfunc main() {}\n"
+        }
+      ],
+      "expected_message_substring": "unsupported syntax: package `os/exec` is outside the supported subset",
+      "expected_category": "compile_error",
+      "tags": ["compiler", "runtime", "browser", "os_exec"]
+    },
+    {
+      "id": "unsafe_import",
+      "name": "unsafe package remains unsupported",
+      "entry_path": "main.go",
+      "files": [
+        {
+          "path": "main.go",
+          "contents": "package main\n\nimport \"unsafe\"\n\nfunc main() {}\n"
+        }
+      ],
+      "expected_message_substring": "unsupported syntax: package `unsafe` is outside the supported subset",
+      "expected_category": "compile_error",
+      "tags": ["compiler", "runtime", "browser", "unsafe"]
+    },
+    {
+      "id": "arbitrary_fs_open",
+      "name": "raw os open stays outside workspace filesystem slice",
+      "entry_path": "main.go",
+      "files": [
+        {
+          "path": "main.go",
+          "contents": "package main\n\nimport \"os\"\n\nfunc main() {\n    _, _ = os.Open(\"file.txt\")\n}\n"
+        }
+      ],
+      "expected_message_substring": "package selector `os.Open` is not supported in the current subset",
+      "expected_category": "compile_error",
+      "tags": ["compiler", "runtime", "browser", "arbitrary_fs"]
+    },
+    {
+      "id": "reflect_mutation_set_int",
+      "name": "reflect mutation remains unsupported",
+      "entry_path": "main.go",
+      "files": [
+        {
+          "path": "main.go",
+          "contents": "package main\n\nimport \"reflect\"\n\nfunc main() {\n    value := 1\n    reflect.ValueOf(&value).Elem().SetInt(3)\n}\n"
+        }
+      ],
+      "expected_message_substring": "method `SetInt` is not part of interface `reflect.Value` in the current subset",
+      "expected_category": "compile_error",
+      "tags": ["compiler", "runtime", "browser", "reflect_mutation"]
+    }
+  ]
+}

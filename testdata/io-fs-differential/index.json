@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "read_dir_sub_and_valid_path",
+      "name": "io fs read dir sub and valid path helpers stay pinned",
+      "entry_path": "main.go",
+      "workspace_files": [
+        "main.go",
+        "config.txt",
+        "assets/nested/value.txt",
+        "assets/top.txt"
+      ],
+      "expected_native_go_stdout": "hello true\ntrue nested true\ntrue false\nnested/,top.txt\n"
+    }
+  ]
+}

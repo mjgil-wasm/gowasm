@@ -1,0 +1,8 @@
+# Portable repo defaults live here on purpose.
+#
+# The previous Linux-local tuning that assumes `clang`, `mold`, `sccache`, and
+# a fixed `jobs = 1` budget now lives in `.cargo/config.dev.toml` and must be
+# opted into explicitly with:
+#
+#   cargo --config .cargo/config.dev.toml <command>
+#   GOWASM_CARGO_CONFIG=.cargo/config.dev.toml ./scripts/build-web.sh

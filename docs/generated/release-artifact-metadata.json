@@ -1,0 +1,25 @@
+{
+  "artifact": {
+    "bytes": 5420125,
+    "path": "web/generated/gowasm_engine_wasm.wasm",
+    "sha256": "71fbd038610b8ae77ad289f0aed6ade3ba83e62582b377714e60742a3b7e0e3e"
+  },
+  "build": {
+    "build_script_path": "scripts/build-web.sh",
+    "build_script_sha256": "01b185afb42be4cf5339469d6dd6cbafbe35938cddc1cbe1bf6f6c17ce1d6c90",
+    "profile": "ship",
+    "target": "wasm32-unknown-unknown",
+    "toolchain_channel": "1.94.1"
+  },
+  "inputs": {
+    "cargo_lock_path": "Cargo.lock",
+    "cargo_lock_sha256": "ffbc6e12dda40dd28c57d60374a83cc339c2ebe2faa5596ccb24397610738b2b",
+    "engine_wasm_manifest_path": "crates/engine-wasm/Cargo.toml",
+    "engine_wasm_manifest_sha256": "08fc59fac752982d3a0d932d008b8fd217ea955419b961437699f2bf8a3fde76",
+    "rust_toolchain_path": "rust-toolchain.toml",
+    "rust_toolchain_sha256": "25b3db3a342108f7273aebd5b651a7f7ac317ed75b774e9d50716cc03493f9b7",
+    "workspace_manifest_path": "Cargo.toml",
+    "workspace_manifest_sha256": "5c43139c2637ac0669e99c86a5c13bdb22d013847c727c8cf3dd339163bd8b45"
+  },
+  "schema_version": 1
+}

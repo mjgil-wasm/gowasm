@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>gowasm</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --panel: #fffaf3;
+        --ink: #1f1f19;
+        --muted: #6a665c;
+        --accent: #0b5d52;
+        --accent-2: #d36c2d;
+        --line: #d8cfbf;
+        --shadow: 0 12px 40px rgba(31, 31, 25, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, rgba(211, 108, 45, 0.12), transparent 32%),
+          radial-gradient(circle at bottom right, rgba(11, 93, 82, 0.12), transparent 28%),
+          var(--bg);
+        color: var(--ink);
+        font:
+          16px/1.5 "Iosevka Aile", "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(1100px, calc(100vw - 32px));
+        margin: 32px auto;
+        display: grid;
+        gap: 16px;
+      }
+
+      .hero,
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 24px;
+      }
+
+      .hero h1 {
+        margin: 0 0 6px;
+        font:
+          700 2.2rem/1 "Iosevka Etoile", "IBM Plex Sans Condensed", sans-serif;
+        letter-spacing: -0.04em;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 68ch;
+      }
+
+      .workspace {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      textarea,
+      pre {
+        width: 100%;
+        min-height: 360px;
+        margin: 0;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        color: var(--ink);
+        font:
+          15px/1.55 "Iosevka Term", "IBM Plex Mono", monospace;
+      }
+
+      textarea {
+        padding: 16px;
+        resize: vertical;
+      }
+
+      pre {
+        padding: 16px;
+        overflow: auto;
+        white-space: pre-wrap;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, var(--accent), #118a6f);
+        color: #f7f7f2;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .status {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .note {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .accent {
+        color: var(--accent-2);
+        font-weight: 700;
+      }
+
+      @media (max-width: 880px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        textarea,
+        pre {
+          min-height: 280px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <h1>gowasm</h1>
+        <p>
+          Browser shell for the Rust-powered Go runtime. The worker now targets the real Wasm
+          engine artifact when it is built into <code>web/generated</code>.
+        </p>
+      </section>
+
+      <section class="workspace">
+        <article class="panel">
+          <div class="toolbar">
+            <strong>main.go</strong>
+            <button id="run-button" type="button">Run Worker Shell</button>
+          </div>
+          <textarea id="source"></textarea>
+          <p class="note">
+            Run <code>scripts/build-web.sh</code> through the project build flow to refresh the
+            Wasm artifact. <span class="accent">The worker now expects a real engine module.</span>
+          </p>
+        </article>
+
+        <article class="panel">
+          <div class="toolbar">
+            <strong>Output</strong>
+            <span class="status" id="status">Booting worker…</span>
+          </div>
+          <pre id="output"></pre>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="./run.js"></script>
+  </body>
+</html>

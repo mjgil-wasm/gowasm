@@ -1,0 +1,17 @@
+[package]
+name = "gowasm-compiler"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+gowasm-lexer = { path = "../lexer" }
+gowasm-parser = { path = "../parser" }
+gowasm-vm = { path = "../vm" }
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+cap.workspace = true
+gowasm-host-types = { path = "../host-types" }
+serde = { workspace = true }
+serde_json = { workspace = true }

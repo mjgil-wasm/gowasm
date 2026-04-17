@@ -1,0 +1,27 @@
+{
+  "message": "invalid module root `__module_cache__/example.com/remote/@v1.2.3/go.mod`: cached module `example.com/remote`@`v1.2.3` is missing `go.mod`\n--> main.go:3:8\n  |\n3 | import \"example.com/remote/greeter\"\n  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+  "severity": "error",
+  "category": "compile_error",
+  "file_path": "main.go",
+  "position": {
+    "line": 3,
+    "column": 8
+  },
+  "source_span": {
+    "start": {
+      "line": 3,
+      "column": 8
+    },
+    "end": {
+      "line": 3,
+      "column": 36
+    }
+  },
+  "source_excerpt": {
+    "line": 3,
+    "text": "import \"example.com/remote/greeter\"",
+    "highlight_start_column": 8,
+    "highlight_end_column": 35
+  },
+  "suggested_action": "Fix the source error and compile again."
+}
