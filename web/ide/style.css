@@ -1,0 +1,591 @@
+:root {
+  --bg: #1a1a2e;
+  --panel: #16162a;
+  --panel-dark: #0f0f1e;
+  --text: #e0e0e0;
+  --text-muted: #888;
+  --accent: #0077aa;
+  --accent-hover: #0099cc;
+  --success: #66ff99;
+  --error: #ff6666;
+  --warning: #ffcc66;
+  --border: #333;
+  --border-light: #2a2a3e;
+  --toolbar-bg: #16162a;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+header h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.05em;
+}
+
+header #subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+header .module-name {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+#ide-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 240px 1fr 360px;
+  grid-template-rows: 1fr;
+  gap: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.panel {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.panel:last-child {
+  border-right: none;
+}
+
+.panel-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.panel-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.panel-toolbar .status {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+
+button:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: var(--border);
+  color: var(--text);
+}
+
+button.secondary:hover:not(:disabled) {
+  background: #444;
+}
+
+/* File tree */
+.tree {
+  flex: 1;
+  overflow: auto;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px 3px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.tree-node:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tree-node.selected {
+  background: rgba(0, 119, 170, 0.2);
+}
+
+.tree-node .icon {
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.tree-node .label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-node .toggle {
+  font-size: 10px;
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.tree-children {
+  padding-left: 14px;
+}
+
+/* Editor */
+#editor-panel {
+  min-width: 0;
+}
+
+.editor-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 4px 4px 0 4px;
+  background: var(--panel-dark);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.editor-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 160px;
+}
+
+.editor-tab.active {
+  background: var(--panel-dark);
+  color: var(--text);
+}
+
+.editor-tab.dirty .tab-label {
+  font-style: italic;
+}
+
+.editor-tab .tab-close {
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.editor-tab .tab-close:hover {
+  background: var(--error);
+  color: #fff;
+}
+
+.editor-wrapper {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.line-numbers {
+  width: 40px;
+  background: var(--panel-dark);
+  border-right: 1px solid var(--border);
+  padding: 8px 6px;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow: hidden;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+#editor {
+  flex: 1;
+  background: var(--panel-dark);
+  color: var(--text);
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: none;
+  tab-size: 2;
+}
+
+#editor::placeholder {
+  color: var(--text-muted);
+}
+
+/* CodeMirror overlay */
+.cm-editor {
+  flex: 1;
+  background: var(--panel-dark) !important;
+}
+
+.cm-editor .cm-scroller {
+  font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace !important;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.cm-editor .cm-gutters {
+  background: var(--panel-dark) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+.cm-editor .cm-activeLineGutter {
+  background: rgba(0, 119, 170, 0.15) !important;
+}
+
+/* Output panel */
+#output-panel {
+  min-width: 0;
+}
+
+.output-tabs {
+  display: flex;
+  background: var(--panel-dark);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.output-tab {
+  padding: 6px 14px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  background: none;
+  border-radius: 0;
+}
+
+.output-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.output-pane {
+  flex: 1;
+  overflow: auto;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  display: none;
+}
+
+.output-pane.active {
+  display: block;
+}
+
+.output-pane .error-link {
+  color: var(--error);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.output-pane .error-link:hover {
+  color: #ff9999;
+}
+
+/* Terminal */
+.terminal-history {
+  min-height: 0;
+  overflow: auto;
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--panel-dark);
+  flex-shrink: 0;
+}
+
+.terminal-prompt {
+  color: var(--success);
+  font-weight: 600;
+}
+
+#terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+}
+
+/* Footer toolbar */
+footer.toolbar {
+  background: var(--toolbar-bg);
+  border-top: 1px solid var(--border);
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+footer.toolbar .actions {
+  display: flex;
+  gap: 8px;
+}
+
+footer.toolbar #status {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+footer.toolbar #status.ok {
+  color: var(--success);
+}
+
+footer.toolbar #status.error {
+  color: var(--error);
+}
+
+/* Context menu */
+.context-menu {
+  position: absolute;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.context-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  color: var(--text);
+  border-radius: 0;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.context-menu button:last-child {
+  border-bottom: none;
+}
+
+.context-menu button:hover {
+  background: rgba(0, 119, 170, 0.2);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal-content {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+  min-width: 320px;
+  max-width: 90vw;
+}
+
+.modal-content p {
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.modal-content input {
+  width: 100%;
+  background: var(--panel-dark);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  border-radius: 3px;
+  margin-bottom: 16px;
+}
+
+.modal-content input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Snippets popup */
+.snippets {
+  position: absolute;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  min-width: 200px;
+  max-height: 240px;
+  overflow: auto;
+}
+
+.snippets[hidden] {
+  display: none;
+}
+
+.snippets .snippet-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.snippets .snippet-item:hover,
+.snippets .snippet-item.active {
+  background: rgba(0, 119, 170, 0.2);
+}
+
+.snippets .snippet-item .snippet-label {
+  font-weight: 600;
+}
+
+.snippets .snippet-item .snippet-desc {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  #ide-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #file-panel {
+    max-height: 200px;
+  }
+
+  #output-panel {
+    max-height: 240px;
+  }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}

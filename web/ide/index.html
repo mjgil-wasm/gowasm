@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gowasm — Go IDE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>gowasm</h1>
+    <p id="subtitle">Go IDE — edit, build, and run Go in the browser</p>
+    <button id="init-module-btn" class="secondary" hidden>Initialize Module</button>
+    <span id="module-name" class="module-name"></span>
+  </header>
+
+  <main id="ide-layout">
+    <div class="panel" id="file-panel">
+      <div class="panel-header">Explorer</div>
+      <div class="panel-toolbar">
+        <button id="new-file-btn" class="secondary" title="New File">+ File</button>
+        <button id="new-folder-btn" class="secondary" title="New Folder">+ Folder</button>
+      </div>
+      <div id="file-tree" class="tree" aria-label="Workspace files"></div>
+    </div>
+
+    <div class="panel" id="editor-panel">
+      <div class="panel-header">Editor</div>
+      <div id="editor-tabs" class="editor-tabs"></div>
+      <div class="editor-wrapper">
+        <div id="line-numbers" class="line-numbers">1</div>
+        <textarea id="editor" spellcheck="false" placeholder="// Select or create a Go file to start editing"></textarea>
+      </div>
+      <div class="panel-toolbar editor-toolbar">
+        <button id="save-btn" class="secondary">Save</button>
+        <span id="editor-status" class="status"></span>
+      </div>
+    </div>
+
+    <div class="panel" id="output-panel">
+      <div class="panel-header">Output</div>
+      <div class="output-tabs">
+        <button class="output-tab active" data-target="build-output">Build</button>
+        <button class="output-tab" data-target="terminal-output">Terminal</button>
+      </div>
+      <div id="build-output" class="output-pane active"></div>
+      <div id="terminal-output" class="output-pane">
+        <div id="terminal-history" class="terminal-history"></div>
+        <div class="terminal-input-line">
+          <span class="terminal-prompt">$</span>
+          <input id="terminal-input" type="text" placeholder="program stdin or shell command" spellcheck="false">
+        </div>
+      </div>
+      <div class="panel-toolbar">
+        <button id="clear-output-btn" class="secondary">Clear</button>
+        <button id="abort-btn" class="secondary" disabled>Abort</button>
+        <span id="output-status" class="status"></span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="toolbar">
+    <div class="actions">
+      <button id="run-btn">Run</button>
+      <button id="build-btn" class="secondary">Build</button>
+      <button id="test-btn" class="secondary">Test</button>
+      <button id="format-btn" class="secondary">Format</button>
+      <button id="vet-btn" class="secondary">Vet</button>
+    </div>
+    <span id="status"></span>
+  </footer>
+
+  <div id="context-menu" class="context-menu" hidden>
+    <button data-action="new-file">New File</button>
+    <button data-action="new-folder">New Folder</button>
+    <button data-action="rename">Rename</button>
+    <button data-action="delete">Delete</button>
+  </div>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-content">
+      <p id="modal-message"></p>
+      <input id="modal-input" type="text" spellcheck="false">
+      <div class="modal-actions">
+        <button id="modal-confirm" class="secondary">OK</button>
+        <button id="modal-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="snippets" class="snippets" hidden></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

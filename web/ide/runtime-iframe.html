@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-eval' 'unsafe-inline' blob:; connect-src 'none';">
+  <title>gowasm runtime sandbox</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0f0f1e;
+      color: #e0e0e0;
+      font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    #output {
+      white-space: pre-wrap;
+      word-break: break-word;
+      padding: 8px 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="output"></div>
+  <script>
+    const output = document.getElementById("output");
+
+    function log(text) {
+      output.appendChild(document.createTextNode(text));
+      output.appendChild(document.createTextNode("\n"));
+      window.parent.postMessage({ type: "stdout", text }, "*");
+    }
+
+    function logErr(text) {
+      window.parent.postMessage({ type: "stderr", text }, "*");
+    }
+
+    // Override console so Go fmt.Println writes to the parent IDE
+    const originalLog = console.log;
+    console.log = function(...args) {
+      log(args.join(" "));
+      originalLog.apply(console, args);
+    };
+    const originalErr = console.error;
+    console.error = function(...args) {
+      logErr(args.join(" "));
+      originalErr.apply(console, args);
+    };
+
+    window.addEventListener("message", async (e) => {
+      if (e.data?.type === "run") {
+        try {
+          const { wasmBytes } = e.data;
+          const { instance } = await WebAssembly.instantiate(wasmBytes, {
+            // Minimal WASI-like stub for sandboxed execution
+            wasi_snapshot_preview1: {
+              fd_write: () => 0,
+              proc_exit: (code) => {
+                window.parent.postMessage({ type: "exit", code }, "*");
+              },
+            },
+          });
+          if (instance.exports._start) {
+            instance.exports._start();
+          }
+          window.parent.postMessage({ type: "exit", code: 0 }, "*");
+        } catch (err) {
+          logErr(String(err));
+          window.parent.postMessage({ type: "exit", code: 1 }, "*");
+        }
+      }
+    });
+
+    window.parent.postMessage({ type: "ready" }, "*");
+  </script>
+</body>
+</html>
