@@ -55,6 +55,7 @@ export class TabbedEditor {
     this.tabs = [];
     this.activePath = "";
     this.dirty = new Set();
+    this.saved = new Set();
     this.editorView = null;
     this.snippetsEl = document.getElementById("snippets");
     this.snippetIndex = -1;
@@ -198,9 +199,12 @@ export class TabbedEditor {
     this.tabBar.innerHTML = "";
     for (const tab of this.tabs) {
       const el = document.createElement("div");
-      el.className = "editor-tab" + (tab.path === this.activePath ? " active" : "") + (this.dirty.has(tab.path) ? " dirty" : "");
+      const isDirty = this.dirty.has(tab.path);
+      const isSaved = this.saved.has(tab.path);
+      el.className = "editor-tab" + (tab.path === this.activePath ? " active" : "") + (isDirty ? " dirty" : "");
       const name = tab.path.split("/").pop();
-      el.innerHTML = `<span class="tab-label">${name}</span><span class="tab-close">×</span>`;
+      const indicator = isDirty ? '<span class="tab-indicator dirty" title="Modified">●</span>' : isSaved ? '<span class="tab-indicator saved" title="Saved">✓</span>' : '';
+      el.innerHTML = `${indicator}<span class="tab-label">${name}</span><span class="tab-close">×</span>`;
       el.addEventListener("click", (e) => {
         if (e.target.classList.contains("tab-close")) {
           this.closeTab(tab.path);
@@ -244,7 +248,12 @@ export class TabbedEditor {
 
   markClean(path) {
     this.dirty.delete(path);
+    this.saved.add(path);
     this._renderTabs();
+    setTimeout(() => {
+      this.saved.delete(path);
+      this._renderTabs();
+    }, 1500);
   }
 
   isDirty(path) {

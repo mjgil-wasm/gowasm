@@ -108,6 +108,7 @@ header .module-name {
   padding: 6px 12px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .panel-toolbar .status {
@@ -234,6 +235,20 @@ button.secondary:hover:not(:disabled) {
 
 .editor-tab.dirty .tab-label {
   font-style: italic;
+}
+
+.editor-tab .tab-indicator {
+  font-size: 10px;
+  line-height: 1;
+  margin-right: 4px;
+}
+
+.editor-tab .tab-indicator.dirty {
+  color: var(--accent);
+}
+
+.editor-tab .tab-indicator.saved {
+  color: var(--success);
 }
 
 .editor-tab .tab-close {

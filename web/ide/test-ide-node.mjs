@@ -110,5 +110,23 @@ assert(typeof fsModule.renameEntry === "function", "renameEntry exported");
 assert(typeof fsModule.createMemoryFS === "function", "createMemoryFS exported");
 assert(typeof fsModule.isFileSystemAccessSupported === "function", "isFileSystemAccessSupported exported");
 
+// 5. Verify engine worker security layer accepts "compile"
+const securitySrc = readFileSync("../browser-capability-security.js", "utf8");
+assert(securitySrc.includes('"compile"'), "browser-capability-security.js accepts compile requests");
+assert(securitySrc.includes("case \"compile\":") && securitySrc.includes("validateRequiredString(request.entry_path"), "compile validates entry_path");
+
+// 6. Verify editor.js has dirty/saved indicator logic
+const editorSrc = readFileSync("./editor.js", "utf8");
+assert(editorSrc.includes("this.saved = new Set()"), "editor tracks saved state");
+assert(editorSrc.includes("tab-indicator dirty"), "editor renders dirty indicator");
+assert(editorSrc.includes("tab-indicator saved"), "editor renders saved indicator");
+assert(editorSrc.includes("setTimeout") && editorSrc.includes("this.saved.delete"), "editor clears saved indicator after timeout");
+
+// 7. Verify CSS has indicator and flex-wrap styles
+assert(css.includes("flex-wrap: wrap"), "panel-toolbar allows wrapping");
+assert(css.includes(".editor-tab .tab-indicator"), "CSS styles tab indicators");
+assert(css.includes(".tab-indicator.dirty"), "CSS styles dirty indicator");
+assert(css.includes(".tab-indicator.saved"), "CSS styles saved indicator");
+
 console.log(`\nDone — ${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

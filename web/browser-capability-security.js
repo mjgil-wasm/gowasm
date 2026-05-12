@@ -1,4 +1,5 @@
 const EXECUTION_REQUEST_KINDS = new Set([
+  "compile",
   "format",
   "lint",
   "run",
@@ -8,6 +9,7 @@ const EXECUTION_REQUEST_KINDS = new Set([
 const ALLOWED_WORKER_REQUEST_KINDS = new Set([
   "boot",
   "cancel",
+  "compile",
   "format",
   "lint",
   "load_module_graph",
@@ -31,6 +33,7 @@ export function validateWorkerRequestEnvelope(request) {
   }
 
   switch (kind) {
+    case "compile":
     case "run":
     case "test_snippet":
       validateRequiredString(request.entry_path, `${kind}.entry_path`);
