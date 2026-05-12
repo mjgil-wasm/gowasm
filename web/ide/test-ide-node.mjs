@@ -142,7 +142,7 @@ assert(mainSrc.includes("$ go run"), "Run command logged to terminal");
 // 9. Verify engine worker has compile in allowed kinds with cache bust
 const workerSrc = readFileSync("../engine-worker.js", "utf8");
 assert(securitySrc.includes('"compile"'), "engine worker security allows compile");
-assert(workerSrc.includes("browser-capability-security.js?v=2"), "engine worker cache-busts security module");
+assert(workerSrc.includes("import(`./browser-capability-security.js${v}`)"), "engine worker uses dynamic import with cache bust");
 
 console.log(`\nDone — ${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

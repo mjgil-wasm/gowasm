@@ -122,7 +122,9 @@ function setEditorStatus(text) {
 /* ─── Engine worker ─── */
 function initWorker() {
   if (worker) return;
-  worker = new Worker("../engine-worker.js?v=2", { type: "module" });
+  const workerUrl = new URL("../engine-worker.js", location.href);
+  workerUrl.searchParams.set("cb", Date.now());
+  worker = new Worker(workerUrl, { type: "module" });
   worker.addEventListener("message", ({ data }) => {
     handleWorkerMessage(data);
   });

@@ -13,7 +13,9 @@
  *   { kind: "fatal", message }
  */
 
-const ENGINE_URL = new URL("../engine-worker.js", self.location.href).href;
+const ENGINE_URL = new URL("../engine-worker.js", self.location.href);
+ENGINE_URL.searchParams.set("cb", Date.now());
+const ENGINE_URL_HREF = ENGINE_URL.href;
 let engine = null;
 let engineReady = false;
 let pendingBuild = null;
@@ -37,7 +39,7 @@ self.addEventListener("message", ({ data }) => {
 });
 
 function boot() {
-  engine = new Worker(ENGINE_URL, { type: "module" });
+  engine = new Worker(ENGINE_URL_HREF, { type: "module" });
   engine.addEventListener("message", ({ data }) => {
     if (data?.kind === "ready") {
       engineReady = true;
