@@ -6,8 +6,8 @@ import { indentWithTab } from "https://esm.sh/@codemirror/commands";
 
 const themeCompartment = new Compartment();
 
-function makeTheme() {
-  return EditorView.theme({
+const THEMES = {
+  dark: EditorView.theme({
     "&": {
       backgroundColor: "#0f0f1e",
       color: "#d0d0e0",
@@ -37,7 +37,73 @@ function makeTheme() {
     ".cm-scroller": {
       fontFamily: 'ui-monospace, "Cascadia Code", "Fira Code", monospace',
     },
-  }, { dark: true });
+  }, { dark: true }),
+  light: EditorView.theme({
+    "&": {
+      backgroundColor: "#fafafa",
+      color: "#2e2e2e",
+      fontSize: "13px",
+      lineHeight: "1.6",
+    },
+    ".cm-gutters": {
+      backgroundColor: "#f0f0f0",
+      color: "#666",
+      borderRight: "1px solid #ddd",
+    },
+    ".cm-activeLineGutter": {
+      backgroundColor: "rgba(0, 119, 170, 0.12)",
+    },
+    ".cm-activeLine": {
+      backgroundColor: "rgba(0, 119, 170, 0.06)",
+    },
+    ".cm-selectionBackground": {
+      backgroundColor: "rgba(0, 119, 170, 0.25)",
+    },
+    ".cm-cursor": {
+      borderLeft: "1.2px solid #2e2e2e",
+    },
+    ".cm-content": {
+      caretColor: "#2e2e2e",
+    },
+    ".cm-scroller": {
+      fontFamily: 'ui-monospace, "Cascadia Code", "Fira Code", monospace',
+    },
+  }),
+  "high-contrast": EditorView.theme({
+    "&": {
+      backgroundColor: "#000000",
+      color: "#ffffff",
+      fontSize: "13px",
+      lineHeight: "1.6",
+    },
+    ".cm-gutters": {
+      backgroundColor: "#000000",
+      color: "#cccccc",
+      borderRight: "1px solid #555",
+    },
+    ".cm-activeLineGutter": {
+      backgroundColor: "rgba(255, 255, 255, 0.2)",
+    },
+    ".cm-activeLine": {
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+    ".cm-selectionBackground": {
+      backgroundColor: "rgba(255, 255, 255, 0.35)",
+    },
+    ".cm-cursor": {
+      borderLeft: "2px solid #ffff00",
+    },
+    ".cm-content": {
+      caretColor: "#ffff00",
+    },
+    ".cm-scroller": {
+      fontFamily: 'ui-monospace, "Cascadia Code", "Fira Code", monospace',
+    },
+  }),
+};
+
+function makeTheme() {
+  return THEMES.dark;
 }
 
 const SNIPPETS = [
@@ -254,10 +320,12 @@ export class TabbedEditor {
     return this.dirty.has(path);
   }
 
-  setReadonly(readonly) {
-    if (!this.editorView) return;
-    this.editorView.dispatch({
-      effects: this.editorView.state.reconfiguration,
-    });
+  setTheme(themeName) {
+    const theme = THEMES[themeName] ?? THEMES.dark;
+    if (this.editorView) {
+      this.editorView.dispatch({
+        effects: themeCompartment.reconfigure(theme),
+      });
+    }
   }
 }

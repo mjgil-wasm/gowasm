@@ -41,6 +41,8 @@ const importZipBtn = document.getElementById("import-zip-btn");
 const exportZipBtn = document.getElementById("export-zip-btn");
 const zipImportInput = document.getElementById("zip-import-input");
 const initModuleBtn = document.getElementById("init-module-btn");
+const themeBtn = document.getElementById("theme-btn");
+const themeDropdown = document.getElementById("theme-dropdown");
 
 
 /* ─── State ─── */
@@ -618,6 +620,25 @@ contextMenu.addEventListener("click", async (e) => {
       }
       break;
     }
+  }
+});
+
+/* ─── Theme dropdown ─── */
+themeBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  themeDropdown.hidden = !themeDropdown.hidden;
+});
+
+themeDropdown.addEventListener("click", (e) => {
+  const theme = e.target.dataset.theme;
+  if (!theme || !editor) return;
+  editor.setTheme(theme);
+  themeDropdown.hidden = true;
+});
+
+document.addEventListener("click", (e) => {
+  if (!themeDropdown.contains(e.target) && e.target !== themeBtn) {
+    themeDropdown.hidden = true;
   }
 });
 

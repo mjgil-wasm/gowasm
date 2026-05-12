@@ -149,5 +149,22 @@ assert(workerSrc.includes("let handleWorkerMessage = null"), "handleWorkerMessag
 assert(workerSrc.includes("void handleWorkerMessage(data)"), "message listener calls handleWorkerMessage via top-level closure");
 assert(workerSrc.includes("handleWorkerMessage = async function"), "handleWorkerMessage assigned inside IIFE");
 
+// 11. Verify theme button and dropdown exist
+assert(doc.getElementById("theme-btn"), "theme button exists");
+assert(doc.getElementById("theme-dropdown"), "theme dropdown exists");
+const themeOptions = doc.querySelectorAll("#theme-dropdown button");
+assert(themeOptions.length === 3, "theme dropdown has 3 options");
+assert(Array.from(themeOptions).some((b) => b.dataset.theme === "dark"), "dark theme option exists");
+assert(Array.from(themeOptions).some((b) => b.dataset.theme === "light"), "light theme option exists");
+assert(Array.from(themeOptions).some((b) => b.dataset.theme === "high-contrast"), "high-contrast theme option exists");
+
+// 12. Verify editor.js has theme definitions and setTheme method
+assert(editorSrc.includes("THEMES = {"), "editor defines THEMES object");
+assert(editorSrc.includes("dark: EditorView.theme"), "dark theme defined");
+assert(editorSrc.includes("light: EditorView.theme"), "light theme defined");
+assert(editorSrc.includes('"high-contrast": EditorView.theme'), "high-contrast theme defined");
+assert(editorSrc.includes("setTheme(themeName)"), "editor has setTheme method");
+assert(editorSrc.includes("themeCompartment.reconfigure(theme)"), "setTheme uses compartment reconfigure");
+
 console.log(`\nDone — ${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);
