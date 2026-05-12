@@ -90,6 +90,20 @@ def resolve_browser_binary(explicit: str | None) -> str:
     )
 
 
+def should_disable_browser_sandbox() -> bool:
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        return True
+
+    # GitHub-hosted Linux runners can block Chromium's user namespace sandbox.
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        return True
+
+    override = os.environ.get("GOWASM_CHROME_NO_SANDBOX")
+    if override is None:
+        return False
+    return override.lower() not in {"0", "false", "no"}
+
+
 class CompletionState:
     def __init__(self) -> None:
         self.condition = threading.Condition()
@@ -224,7 +238,8 @@ def browser_arguments(
         "--window-size=1440,1200",
         url,
     ]
-    if hasattr(os, "geteuid") and os.geteuid() == 0:
+    if should_disable_browser_sandbox():
+        arguments.insert(1, "--disable-setuid-sandbox")
         arguments.insert(1, "--no-sandbox")
     return arguments
 
@@ -244,15 +259,25 @@ def wait_for_completion(
             text=True,
         )
         try:
-            try:
-                text = completion_state.wait_for(primary_element_id, timeout_seconds)
-            except TimeoutError:
-                process.kill()
-                stdout, stderr = process.communicate(timeout=10)
-                raise SystemExit(
-                    "timed out waiting for browser page completion callback\n"
-                    f"stdout:\n{stdout}\nstderr:\n{stderr}"
-                )
+            deadline = time.monotonic() + timeout_seconds
+            while True:
+                text = completion_state.get(primary_element_id)
+                if text is not None:
+                    break
+                if process.poll() is not None:
+                    stdout, stderr = process.communicate(timeout=10)
+                    raise SystemExit(
+                        "browser exited before page completion callback\n"
+                        f"stdout:\n{stdout}\nstderr:\n{stderr}"
+                    )
+                if time.monotonic() >= deadline:
+                    process.kill()
+                    stdout, stderr = process.communicate(timeout=10)
+                    raise SystemExit(
+                        "timed out waiting for browser page completion callback\n"
+                        f"stdout:\n{stdout}\nstderr:\n{stderr}"
+                    )
+                time.sleep(0.1)
         finally:
             if process.poll() is None:
                 process.terminate()
