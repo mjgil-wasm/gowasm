@@ -3,6 +3,7 @@ const encoder = new TextEncoder();
 
 let enginePromise;
 let activeRunState = null;
+let handleWorkerMessage = null;
 
 const pendingMessages = [];
 let initialized = false;
@@ -27,12 +28,7 @@ self.addEventListener("message", ({ data }) => {
     import(`./engine-worker-modules.js${v}`),
   ]);
 
-  initialized = true;
-  for (const data of pendingMessages) {
-    void handleWorkerMessage(data);
-  }
-
-  async function handleWorkerMessage(data) {
+  handleWorkerMessage = async function(data) {
     if (data?.kind === "cancel") {
       const cancelled = await cancelActiveRun();
       if (cancelled) {
@@ -57,7 +53,7 @@ self.addEventListener("message", ({ data }) => {
         message: formatError(error),
       });
     }
-  }
+  };
 
   async function sendWorkerRequest(engine, request) {
     if (!isExecutionRequest(request)) {
@@ -188,5 +184,10 @@ self.addEventListener("message", ({ data }) => {
     } finally {
       exports.free_request_buffer(ptr, payload.length);
     }
+  }
+
+  initialized = true;
+  for (const data of pendingMessages) {
+    void handleWorkerMessage(data);
   }
 })();

@@ -144,5 +144,10 @@ const workerSrc = readFileSync("../engine-worker.js", "utf8");
 assert(securitySrc.includes('"compile"'), "engine worker security allows compile");
 assert(workerSrc.includes("import(`./browser-capability-security.js${v}`)"), "engine worker uses dynamic import with cache bust");
 
+// 10. Verify engine-worker.js scope fix: handleWorkerMessage is declared at top level
+assert(workerSrc.includes("let handleWorkerMessage = null"), "handleWorkerMessage declared at top level");
+assert(workerSrc.includes("void handleWorkerMessage(data)"), "message listener calls handleWorkerMessage via top-level closure");
+assert(workerSrc.includes("handleWorkerMessage = async function"), "handleWorkerMessage assigned inside IIFE");
+
 console.log(`\nDone — ${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);
