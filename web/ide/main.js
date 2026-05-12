@@ -11,6 +11,7 @@ import {
   isFileSystemAccessSupported,
 } from "./fs.js";
 import { TabbedEditor } from "./editor.js";
+import { exportZip, importZip } from "./zip.js";
 
 /* ─── DOM refs ─── */
 const fileTree = document.getElementById("file-tree");
@@ -37,6 +38,9 @@ const modalInput = document.getElementById("modal-input");
 const modalConfirm = document.getElementById("modal-confirm");
 const modalCancel = document.getElementById("modal-cancel");
 const moduleNameEl = document.getElementById("module-name");
+const importZipBtn = document.getElementById("import-zip-btn");
+const exportZipBtn = document.getElementById("export-zip-btn");
+const zipImportInput = document.getElementById("zip-import-input");
 const initModuleBtn = document.getElementById("init-module-btn");
 const outputTabs = document.querySelectorAll(".output-tab");
 const outputPanes = document.querySelectorAll(".output-pane");
@@ -56,6 +60,8 @@ let moduleName = "";
 let contextTargetPath = "";
 let stdinQueue = [];
 let awaitingInput = false;
+let autosaveTimer = null;
+const AUTOSAVE_DELAY = 500;
 
 /* ─── Helpers ─── */
 function setStatus(text, type = "") {
@@ -434,6 +440,11 @@ async function openFile(path) {
       onChange: (p, text) => {
         openFiles.set(p, text);
         setEditorStatus("Unsaved");
+        if (autosaveTimer) clearTimeout(autosaveTimer);
+        autosaveTimer = setTimeout(() => {
+          saveFile(p);
+          autosaveTimer = null;
+        }, AUTOSAVE_DELAY);
       },
       onSave: (p) => saveFile(p),
     });
@@ -684,6 +695,44 @@ newFolderBtn.addEventListener("click", async () => {
 saveBtn.addEventListener("click", () => {
   if (editor && editor.activePath) {
     saveFile(editor.activePath);
+  }
+});
+
+importZipBtn.addEventListener("click", () => {
+  zipImportInput.click();
+});
+
+zipImportInput.addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const imported = await importZip(file);
+    for (const f of imported) {
+      await fsWriteFile(f.path, f.contents);
+    }
+    await renderTree();
+    setStatus(`Imported ${imported.length} file(s) from ZIP`, "ok");
+  } catch (err) {
+    setStatus("ZIP import failed: " + err.message, "error");
+  }
+  zipImportInput.value = "";
+});
+
+exportZipBtn.addEventListener("click", async () => {
+  try {
+    const files = await collectExecutionFiles();
+    const blob = await exportZip(files);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = (moduleName || "workspace") + ".zip";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    setStatus("Exported ZIP", "ok");
+  } catch (err) {
+    setStatus("ZIP export failed: " + err.message, "error");
   }
 });
 

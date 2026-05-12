@@ -193,10 +193,16 @@ All core phases have been implemented in `web/ide/`:
 | Phase 7 | ✅ Complete | `go.mod` awareness, Initialize Module button, snippets |
 | Phase 8 | ✅ Complete | `compiler-worker.js`, `runtime-iframe.html`, engine integration |
 
+### Additional features completed
+
+- **Debounced autosave**: 500 ms delay after last keystroke before writing to the File System Access API / in-memory FS.
+- **ZIP import/export**: `zip.js` using JSZip enables importing and exporting the entire workspace as a `.zip` file, making the in-memory fallback fully portable.
+
 ### Tests
 
 - `web/ide/test-ide-fs.html` / `test-ide-fs.js` / `test-ide-fs-runner.js` — browser test harness for fs.js
-- `web/ide/test-ide-node.mjs` — Node.js/jsdom structural tests (49 assertions, all passing)
+- `web/ide/test-ide-zip.html` / `test-ide-zip.js` / `test-ide-zip-runner.js` — browser test harness for ZIP import/export
+- `web/ide/test-ide-node.mjs` — Node.js/jsdom structural tests (52 assertions, all passing)
 
 ### Optional future enhancements
 

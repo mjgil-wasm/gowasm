@@ -20,6 +20,8 @@
       <div class="panel-toolbar">
         <button id="new-file-btn" class="secondary" title="New File">+ File</button>
         <button id="new-folder-btn" class="secondary" title="New Folder">+ Folder</button>
+        <button id="import-zip-btn" class="secondary" title="Import ZIP">Import</button>
+        <button id="export-zip-btn" class="secondary" title="Export ZIP">Export</button>
       </div>
       <div id="file-tree" class="tree" aria-label="Workspace files"></div>
     </div>
@@ -89,6 +91,7 @@
   </div>
 
   <div id="snippets" class="snippets" hidden></div>
+  <input type="file" id="zip-import-input" accept=".zip" hidden>
 
   <script type="module" src="main.js"></script>
 </body>

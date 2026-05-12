@@ -44,6 +44,9 @@ assert(doc.getElementById("abort-btn"), "abort button exists");
 assert(doc.getElementById("context-menu"), "context-menu exists");
 assert(doc.getElementById("modal"), "modal exists");
 assert(doc.getElementById("snippets"), "snippets exists");
+assert(doc.getElementById("import-zip-btn"), "import zip button exists");
+assert(doc.getElementById("export-zip-btn"), "export zip button exists");
+assert(doc.getElementById("zip-import-input"), "zip import input exists");
 
 // 2. CSS structure test
 const css = readFileSync("./style.css", "utf8");
