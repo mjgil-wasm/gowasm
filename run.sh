@@ -128,7 +128,7 @@ if [[ "$USE_PORTLESS" == "true" ]]; then
 fi
 
 if [[ "$USE_PORTLESS" == "true" ]]; then
-  echo "🚀 Starting gowasm via Portless..."
+  echo "🚀 Starting gowasm IDE via Portless..."
   run_portless gowasm env GOWASM_WEB_DIR="$WEB_DIR" bash -c 'python3 -m http.server "$PORT" --directory "$GOWASM_WEB_DIR"' &
   PID=$!
   PORTLESS_URL="$(run_portless get gowasm)"
@@ -136,8 +136,8 @@ if [[ "$USE_PORTLESS" == "true" ]]; then
   PORTLESS_HOST_PORT="${PORTLESS_URL#*://}"
   PORTLESS_HOST="${PORTLESS_HOST_PORT%%/*}"
   PORTLESS_HOST_NO_PORT="${PORTLESS_HOST%%:*}"
-  URL="${PORTLESS_SCHEME}://${PORTLESS_HOST_NO_PORT}/index.html"
-  HEALTH_URL="${PORTLESS_URL}/index.html"
+  URL="${PORTLESS_SCHEME}://${PORTLESS_HOST_NO_PORT}/ide/index.html"
+  HEALTH_URL="${PORTLESS_URL}/ide/index.html"
   OPEN_URL="$HEALTH_URL"
 else
   PORT="${PORT:-8080}"
@@ -148,10 +148,10 @@ else
     exit 1
   fi
 
-  echo "🚀 Starting gowasm on localhost:$PORT..."
+  echo "🚀 Starting gowasm IDE on localhost:$PORT..."
   python3 -m http.server "$PORT" --directory "$WEB_DIR" &
   PID=$!
-  URL="http://localhost:$PORT/index.html"
+  URL="http://localhost:$PORT/ide/index.html"
   HEALTH_URL="$URL"
   OPEN_URL="$URL"
 fi
@@ -170,8 +170,9 @@ while ! curl -s --fail "$HEALTH_URL" >/dev/null 2>&1; do
 done
 
 echo ""
-echo "🌐 gowasm is running at:"
+echo "🌐 gowasm IDE is running at:"
 echo "   $URL"
+echo "   (Classic shell available at ${URL%ide/index.html}index.html)"
 echo ""
 echo "Press Ctrl+C to stop the server"
 
