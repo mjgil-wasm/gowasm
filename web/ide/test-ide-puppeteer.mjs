@@ -8,9 +8,36 @@
  *   node test-ide-puppeteer.mjs
  */
 
-import puppeteer from "/home/m/.asdf/installs/nodejs/22.15.0/lib/node_modules/@modelcontextprotocol/server-puppeteer/node_modules/puppeteer/lib/esm/puppeteer/puppeteer.js";
+import { createRequire } from "node:module";
+import { existsSync } from "node:fs";
+
+const require = createRequire(import.meta.url);
+
+let puppeteer;
+for (const pkg of ["puppeteer", "puppeteer-core"]) {
+  try {
+    const candidate = require(pkg);
+    puppeteer = candidate.default || candidate;
+    break;
+  } catch (err) {
+    if (err.code !== "MODULE_NOT_FOUND") {
+      throw err;
+    }
+  }
+}
+
+if (!puppeteer) {
+  console.error("Puppeteer is required for this IDE test but was not found.");
+  console.error("Install it with: npm i --save-dev puppeteer");
+  process.exit(2);
+}
 
 const BASE = process.env.IDE_TEST_URL || "http://localhost:8765";
+const browserExecutable =
+  process.env.GOWASM_CHROME_BIN ||
+  process.env.PUPPETEER_EXECUTABLE_PATH ||
+  ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"]
+    .find((candidate) => existsSync(candidate));
 
 let browser;
 let page;
@@ -31,6 +58,10 @@ async function waitFor(selector, timeout = 5000) {
   await page.waitForSelector(selector, { timeout });
 }
 
+async function sleep(ms) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function runTests() {
   console.log("\n--- IDE Puppeteer workflow tests ---\n");
   console.log(`Base URL: ${BASE}\n`);
@@ -45,11 +76,11 @@ async function runTests() {
   const hasFileTree = await page.evaluate(() => !!document.getElementById("file-tree"));
   assert(hasFileTree, "file-tree panel exists");
 
-  const hasEditor = await page.evaluate(() => !!document.getElementById("editor"));
-  assert(hasEditor, "editor textarea exists");
+  const hasLegacyEditor = await page.evaluate(() => !!document.getElementById("editor"));
+  assert(!hasLegacyEditor, "legacy editor textarea is removed");
 
   const hasBuildOutput = await page.evaluate(() => !!document.getElementById("build-output"));
-  assert(hasBuildOutput, "build-output panel exists");
+  assert(!hasBuildOutput, "legacy build-output panel is removed");
 
   const hasTerminal = await page.evaluate(() => !!document.getElementById("terminal-output"));
   assert(hasTerminal, "terminal-output panel exists");
@@ -69,7 +100,10 @@ async function runTests() {
   }
 
   // 4. Open a file and verify tab appears
-  await page.waitForTimeout(500);
+  await page.waitForFunction(
+    () => Array.from(document.querySelectorAll(".tree-node")).some((n) => n.dataset.path === "main.go"),
+    { timeout: 5000 },
+  );
 
   const mainGoClicked = await page.evaluate(() => {
     const nodes = Array.from(document.querySelectorAll(".tree-node"));
@@ -82,7 +116,7 @@ async function runTests() {
   });
   assert(mainGoClicked, "clicked main.go in file tree");
 
-  await page.waitForTimeout(300);
+  await sleep(300);
 
   const tabExists = await page.evaluate(() =>
     Array.from(document.querySelectorAll(".editor-tab")).some((t) =>
@@ -91,23 +125,34 @@ async function runTests() {
   );
   assert(tabExists, "main.go tab appears after click");
 
-  // 5. Type in editor and verify dirty indicator appears
-  await page.click(".cm-editor");
-  await page.keyboard.type("\n// test edit");
-  await page.waitForTimeout(600);
+  const hasEditor = await page.evaluate(() => !!document.querySelector(".cm-editor"));
+  assert(hasEditor, "CodeMirror editor exists after opening a file");
 
-  const hasDirtyIndicator = await page.evaluate(() =>
-    Array.from(document.querySelectorAll(".editor-tab")).some((t) =>
-      t.querySelector(".tab-indicator.dirty")
-    )
-  );
-  assert(hasDirtyIndicator, "dirty indicator (●) appears after edit");
+  // 5. Type in editor and verify dirty indicator appears
+  await page.click(".cm-content");
+  await page.keyboard.press("End");
+  await page.keyboard.type("\n// test edit");
+  await sleep(150);
+
+  const editorUpdated = await page.evaluate(() => {
+    const content = document.querySelector(".cm-content");
+    return Boolean(content && content.textContent && content.textContent.includes("// test edit"));
+  });
+  assert(editorUpdated, "editor content updates after typing");
+
+  const hasUnsavedState = await page.evaluate(() => {
+    const editorStatus = document.getElementById("editor-status")?.textContent?.trim();
+    return editorStatus === "Unsaved" || Array.from(document.querySelectorAll(".editor-tab")).some((t) =>
+      t.classList.contains("dirty") || Boolean(t.querySelector(".tab-indicator.dirty"))
+    );
+  });
+  assert(hasUnsavedState, "unsaved editor state appears after edit");
 
   // 6. Save the file and verify saved indicator appears
   await page.keyboard.down("Control");
   await page.keyboard.press("s");
   await page.keyboard.up("Control");
-  await page.waitForTimeout(200);
+  await sleep(300);
 
   const hasSavedIndicator = await page.evaluate(() =>
     Array.from(document.querySelectorAll(".editor-tab")).some((t) =>
@@ -125,12 +170,12 @@ async function runTests() {
 
   // 8. Format button triggers a request
   await page.click("#format-btn");
-  await page.waitForTimeout(500);
+  await sleep(500);
   assert(true, "format button was clickable and triggered a request");
 
   // 9. Output panel tabs switch
   await page.click('[data-target="terminal-output"]');
-  await page.waitForTimeout(100);
+  await sleep(100);
 
   const terminalActive = await page.evaluate(() =>
     document.getElementById("terminal-output").classList.contains("active")
@@ -164,6 +209,7 @@ async function main() {
     browser = await puppeteer.launch({
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+      ...(browserExecutable ? { executablePath: browserExecutable } : {}),
     });
     page = await browser.newPage();
     page.setViewport({ width: 1280, height: 900 });

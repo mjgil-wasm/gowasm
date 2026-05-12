@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const { existsSync } = require("node:fs");
 const { URL } = require("node:url");
 
 const URL_ARGUMENT = process.argv[2];
@@ -35,8 +36,14 @@ const launchOptions = {
   args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
 };
 
-if (process.env.GOWASM_CHROME_BIN) {
-  launchOptions.executablePath = process.env.GOWASM_CHROME_BIN;
+const browserExecutable =
+  process.env.GOWASM_CHROME_BIN ||
+  process.env.PUPPETEER_EXECUTABLE_PATH ||
+  ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"]
+    .find((candidate) => existsSync(candidate));
+
+if (browserExecutable) {
+  launchOptions.executablePath = browserExecutable;
 }
 
 (async () => {

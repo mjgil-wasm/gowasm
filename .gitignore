@@ -4,3 +4,4 @@
 /docs/generated/
 __pycache__/
 *.pyc
+node_modules

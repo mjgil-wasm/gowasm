@@ -23,48 +23,7 @@ impl Parser {
             });
         }
         self.expect_keyword("`struct`", TokenKind::Struct)?;
-        self.expect_punctuation("`{`", |kind| matches!(kind, TokenKind::LBrace))?;
-        let mut fields = Vec::new();
-        while !self.check(|kind| matches!(kind, TokenKind::RBrace)) {
-            if self.check(|kind| matches!(kind, TokenKind::Eof)) {
-                return Err(ParseError::UnexpectedEof {
-                    context: "struct type declaration".into(),
-                });
-            }
-
-            let (name, typ, embedded) = if self.check(|kind| matches!(kind, TokenKind::Star)) {
-                let typ = self.parse_type_name()?;
-                let base = typ.strip_prefix('*').unwrap_or(&typ);
-                (base.to_string(), typ, true)
-            } else {
-                let name = self.expect_ident()?;
-                if self.check(|kind| {
-                    matches!(
-                        kind,
-                        TokenKind::Semicolon | TokenKind::RBrace | TokenKind::String(_)
-                    )
-                }) {
-                    (name.clone(), name, true)
-                } else {
-                    (name, self.parse_type_name()?, false)
-                }
-            };
-            let tag = if self.check(|kind| matches!(kind, TokenKind::String(_))) {
-                Some(self.expect_string()?)
-            } else {
-                None
-            };
-            fields.push(TypeFieldDecl {
-                name,
-                typ,
-                embedded,
-                tag,
-            });
-            while self.check(|kind| matches!(kind, TokenKind::Semicolon)) {
-                self.bump();
-            }
-        }
-        self.expect_punctuation("`}`", |kind| matches!(kind, TokenKind::RBrace))?;
+        let fields = self.parse_struct_fields("struct type declaration")?;
         Ok(TypeDecl {
             name,
             type_params,
@@ -104,5 +63,54 @@ impl Parser {
         }
         self.expect_punctuation("`}`", |kind| matches!(kind, TokenKind::RBrace))?;
         Ok((methods, embeds))
+    }
+
+    pub(super) fn parse_struct_fields(
+        &mut self,
+        context: &str,
+    ) -> Result<Vec<TypeFieldDecl>, ParseError> {
+        self.expect_punctuation("`{`", |kind| matches!(kind, TokenKind::LBrace))?;
+        let mut fields = Vec::new();
+        while !self.check(|kind| matches!(kind, TokenKind::RBrace)) {
+            if self.check(|kind| matches!(kind, TokenKind::Eof)) {
+                return Err(ParseError::UnexpectedEof {
+                    context: context.into(),
+                });
+            }
+
+            let (name, typ, embedded) = if self.check(|kind| matches!(kind, TokenKind::Star)) {
+                let typ = self.parse_type_name()?;
+                let base = typ.strip_prefix('*').unwrap_or(&typ);
+                (base.to_string(), typ, true)
+            } else {
+                let name = self.expect_ident()?;
+                if self.check(|kind| {
+                    matches!(
+                        kind,
+                        TokenKind::Semicolon | TokenKind::RBrace | TokenKind::String(_)
+                    )
+                }) {
+                    (name.clone(), name, true)
+                } else {
+                    (name, self.parse_type_name()?, false)
+                }
+            };
+            let tag = if self.check(|kind| matches!(kind, TokenKind::String(_))) {
+                Some(self.expect_string()?)
+            } else {
+                None
+            };
+            fields.push(TypeFieldDecl {
+                name,
+                typ,
+                embedded,
+                tag,
+            });
+            while self.check(|kind| matches!(kind, TokenKind::Semicolon)) {
+                self.bump();
+            }
+        }
+        self.expect_punctuation("`}`", |kind| matches!(kind, TokenKind::RBrace))?;
+        Ok(fields)
     }
 }

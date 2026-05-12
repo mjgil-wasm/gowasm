@@ -572,7 +572,7 @@ impl Parser {
                     expr: Box::new(expr),
                 });
             }
-            let elements = self.parse_collection_elements()?;
+            let elements = self.parse_collection_elements(Some(&element_type))?;
             return Ok(Expr::SliceLiteral {
                 element_type,
                 elements,
@@ -594,7 +594,7 @@ impl Parser {
         };
         self.expect_punctuation("`]`", |kind| matches!(kind, TokenKind::RBracket))?;
         let element_type = self.parse_type_name()?;
-        let elements = self.parse_collection_elements()?;
+        let elements = self.parse_collection_elements(Some(&element_type))?;
         Ok(Expr::ArrayLiteral {
             len,
             element_type,
@@ -602,7 +602,7 @@ impl Parser {
         })
     }
 
-    fn parse_collection_elements(&mut self) -> Result<Vec<Expr>, ParseError> {
+    fn parse_collection_elements(&mut self, element_type: Option<&str>) -> Result<Vec<Expr>, ParseError> {
         self.expect_punctuation("`{`", |kind| matches!(kind, TokenKind::LBrace))?;
         let mut elements = Vec::new();
         if self.check(|kind| matches!(kind, TokenKind::RBrace)) {
@@ -611,7 +611,15 @@ impl Parser {
         }
 
         loop {
-            elements.push(self.parse_expr()?);
+            if self.check(|kind| matches!(kind, TokenKind::LBrace))
+                && element_type.is_some_and(|typ| typ.starts_with("struct{"))
+            {
+                elements.push(self.parse_struct_literal(
+                    element_type.expect("checked above").to_string(),
+                )?);
+            } else {
+                elements.push(self.parse_expr()?);
+            }
             if !self.check(|kind| matches!(kind, TokenKind::Comma)) {
                 break;
             }

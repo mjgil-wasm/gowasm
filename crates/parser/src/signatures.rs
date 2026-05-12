@@ -103,17 +103,24 @@ impl Parser {
                     variadic,
                 });
             } else {
-                let name = self.expect_ident()?;
+                let mut names = vec![self.expect_ident()?];
+                while self.check(|kind| matches!(kind, TokenKind::Comma)) {
+                    self.bump();
+                    names.push(self.expect_ident()?);
+                }
                 let variadic = self.check(|kind| matches!(kind, TokenKind::Ellipsis));
                 if variadic {
                     self.bump();
                 }
                 let typ = self.parse_type_name()?;
-                params.push(Parameter {
-                    name,
-                    typ: if variadic { format!("[]{typ}") } else { typ },
-                    variadic,
-                });
+                let typ = if variadic { format!("[]{typ}") } else { typ };
+                for name in names {
+                    params.push(Parameter {
+                        name,
+                        typ: typ.clone(),
+                        variadic,
+                    });
+                }
             }
             if !self.check(|kind| matches!(kind, TokenKind::Comma)) {
                 break;

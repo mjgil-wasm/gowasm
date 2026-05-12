@@ -35,9 +35,8 @@ impl Parser {
 
         if self.check(|kind| matches!(kind, TokenKind::Struct)) {
             self.bump();
-            self.expect_punctuation("`{`", |kind| matches!(kind, TokenKind::LBrace))?;
-            self.expect_punctuation("`}`", |kind| matches!(kind, TokenKind::RBrace))?;
-            return Ok(TypeRepr::Name("struct{}".into()));
+            let fields = self.parse_struct_fields("anonymous struct type")?;
+            return Ok(TypeRepr::Name(render_struct_type_name(&fields)));
         }
 
         if self.check(|kind| matches!(kind, TokenKind::Star)) {
@@ -174,4 +173,30 @@ impl Parser {
 
         Ok(types)
     }
+}
+
+fn render_struct_type_name(fields: &[TypeFieldDecl]) -> String {
+    if fields.is_empty() {
+        return "struct{}".into();
+    }
+
+    let fields = fields
+        .iter()
+        .map(|field| {
+            let mut rendered = if field.embedded {
+                field.typ.clone()
+            } else {
+                format!("{} {}", field.name, field.typ)
+            };
+            if let Some(tag) = &field.tag {
+                rendered.push(' ');
+                rendered.push('`');
+                rendered.push_str(tag);
+                rendered.push('`');
+            }
+            rendered
+        })
+        .collect::<Vec<_>>()
+        .join(";");
+    format!("struct{{{fields}}}")
 }

@@ -254,6 +254,42 @@ func greet(name string, count int) {
 }
 
 #[test]
+fn parses_grouped_function_parameters() {
+    let source = r#"
+package main
+
+import "fmt"
+
+func Add(a, b int) int {
+    return a + b
+}
+
+func main() {
+    result := Add(5, 7)
+    fmt.Printf("5 + 7 = %d\n", result)
+}
+"#;
+
+    let file = parse_source_file(source).expect("source should parse");
+    assert_eq!(
+        file.functions[0].params,
+        vec![
+            Parameter {
+                name: "a".into(),
+                typ: "int".into(),
+                variadic: false,
+            },
+            Parameter {
+                name: "b".into(),
+                typ: "int".into(),
+                variadic: false,
+            },
+        ]
+    );
+    assert_eq!(file.functions[0].result_types, vec!["int".to_string()]);
+}
+
+#[test]
 fn parses_function_result_types_and_return_statements() {
     let source = r#"
 package main

@@ -165,6 +165,22 @@ assert(editorSrc.includes("light: EditorView.theme"), "light theme defined");
 assert(editorSrc.includes('"high-contrast": EditorView.theme'), "high-contrast theme defined");
 assert(editorSrc.includes("setTheme(themeName)"), "editor has setTheme method");
 assert(editorSrc.includes("themeCompartment.reconfigure(theme)"), "setTheme uses compartment reconfigure");
+assert(editorSrc.includes("themeCompartment.of(THEMES.dark)"), "editor initializes theme via compartment so reconfigure works");
+assert(doc.getElementById("theme-btn").textContent.trim() === "THEME", "theme button text is THEME");
+
+// 13. Verify syntax highlighting is driven by HighlightStyle, not raw CSS
+assert(editorSrc.includes("HighlightStyle"), "imports HighlightStyle from @codemirror/language");
+assert(editorSrc.includes("syntaxHighlighting"), "imports syntaxHighlighting from @codemirror/language");
+assert(editorSrc.includes('from "https://esm.sh/@lezer/highlight"'), "imports tags from @lezer/highlight");
+assert(editorSrc.includes("DARK_SYNTAX"), "dark syntax highlight style defined");
+assert(editorSrc.includes("LIGHT_SYNTAX"), "light syntax highlight style defined");
+assert(editorSrc.includes("HC_SYNTAX"), "high-contrast syntax highlight style defined");
+assert(editorSrc.includes("SYNTAX_BY_THEME"), "syntax-by-theme mapping exists");
+assert(editorSrc.includes("syntaxCompartment"), "syntax compartment exists");
+assert(editorSrc.includes("syntaxCompartment.of(syntaxHighlighting(DARK_SYNTAX))"), "editor initializes syntax highlighting via compartment");
+assert(editorSrc.includes("syntaxCompartment.reconfigure(syntaxHighlighting(syntax))"), "setTheme reconfigures syntax compartment");
+assert(editorSrc.includes("effects: ["), "setTheme dispatches combined effects array");
+assert(!editorSrc.includes('.cm-keyword": { color:'), "removed broken raw CSS syntax overrides from EditorView.theme");
 
 console.log(`\nDone — ${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

@@ -1,0 +1,7 @@
+{
+  "name": "gowasm-test",
+  "private": true,
+  "devDependencies": {
+    "puppeteer-core": "^24.43.1"
+  }
+}

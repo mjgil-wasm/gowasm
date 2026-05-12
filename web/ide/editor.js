@@ -3,8 +3,11 @@ import { EditorState, Compartment } from "https://esm.sh/@codemirror/state";
 import { basicSetup } from "https://esm.sh/codemirror";
 import { go } from "https://esm.sh/@codemirror/lang-go";
 import { indentWithTab } from "https://esm.sh/@codemirror/commands";
+import { HighlightStyle, syntaxHighlighting } from "https://esm.sh/@codemirror/language";
+import { tags } from "https://esm.sh/@lezer/highlight";
 
 const themeCompartment = new Compartment();
+const syntaxCompartment = new Compartment();
 
 const THEMES = {
   dark: EditorView.theme({
@@ -102,10 +105,80 @@ const THEMES = {
   }),
 };
 
-function makeTheme() {
-  return THEMES.dark;
-}
+const DARK_SYNTAX = HighlightStyle.define([
+  { tag: tags.keyword, color: "#ff79c6" },
+  { tag: tags.string, color: "#f1fa8c" },
+  { tag: tags.comment, color: "#6272a4" },
+  { tag: tags.variableName, color: "#f8f8f2" },
+  { tag: tags.definition(tags.variableName), color: "#50fa7b" },
+  { tag: tags.function(tags.variableName), color: "#50fa7b" },
+  { tag: tags.propertyName, color: "#50fa7b" },
+  { tag: tags.definition(tags.propertyName), color: "#50fa7b" },
+  { tag: tags.local(tags.variableName), color: "#f8f8f2" },
+  { tag: tags.special(tags.variableName), color: "#ff79c6" },
+  { tag: tags.typeName, color: "#8be9fd" },
+  { tag: tags.className, color: "#8be9fd" },
+  { tag: tags.namespace, color: "#8be9fd" },
+  { tag: tags.number, color: "#bd93f9" },
+  { tag: tags.operator, color: "#ff79c6" },
+  { tag: tags.punctuation, color: "#d0d0e0" },
+  { tag: tags.bool, color: "#bd93f9" },
+  { tag: tags.atom, color: "#bd93f9" },
+  { tag: tags.meta, color: "#6272a4" },
+  { tag: tags.invalid, color: "#ff5555" },
+]);
 
+const LIGHT_SYNTAX = HighlightStyle.define([
+  { tag: tags.keyword, color: "#d73a49" },
+  { tag: tags.string, color: "#032f62" },
+  { tag: tags.comment, color: "#6a737d" },
+  { tag: tags.variableName, color: "#24292e" },
+  { tag: tags.definition(tags.variableName), color: "#005cc5" },
+  { tag: tags.function(tags.variableName), color: "#005cc5" },
+  { tag: tags.propertyName, color: "#005cc5" },
+  { tag: tags.definition(tags.propertyName), color: "#005cc5" },
+  { tag: tags.local(tags.variableName), color: "#24292e" },
+  { tag: tags.special(tags.variableName), color: "#d73a49" },
+  { tag: tags.typeName, color: "#6f42c1" },
+  { tag: tags.className, color: "#6f42c1" },
+  { tag: tags.namespace, color: "#6f42c1" },
+  { tag: tags.number, color: "#005cc5" },
+  { tag: tags.operator, color: "#d73a49" },
+  { tag: tags.punctuation, color: "#2e2e2e" },
+  { tag: tags.bool, color: "#005cc5" },
+  { tag: tags.atom, color: "#005cc5" },
+  { tag: tags.meta, color: "#6a737d" },
+  { tag: tags.invalid, color: "#cb2431" },
+]);
+
+const HC_SYNTAX = HighlightStyle.define([
+  { tag: tags.keyword, color: "#ffff00" },
+  { tag: tags.string, color: "#00ff00" },
+  { tag: tags.comment, color: "#aaaaaa" },
+  { tag: tags.variableName, color: "#ffffff" },
+  { tag: tags.definition(tags.variableName), color: "#ffaa00" },
+  { tag: tags.function(tags.variableName), color: "#ffaa00" },
+  { tag: tags.propertyName, color: "#ffaa00" },
+  { tag: tags.definition(tags.propertyName), color: "#ffaa00" },
+  { tag: tags.local(tags.variableName), color: "#ffffff" },
+  { tag: tags.special(tags.variableName), color: "#ffff00" },
+  { tag: tags.typeName, color: "#00ffff" },
+  { tag: tags.className, color: "#00ffff" },
+  { tag: tags.namespace, color: "#00ffff" },
+  { tag: tags.number, color: "#ff66ff" },
+  { tag: tags.operator, color: "#ffff00" },
+  { tag: tags.punctuation, color: "#ffffff" },
+  { tag: tags.bool, color: "#ff66ff" },
+  { tag: tags.atom, color: "#ff66ff" },
+  { tag: tags.meta, color: "#aaaaaa" },
+  { tag: tags.invalid, color: "#ff4444" },
+]);
+
+const SYNTAX_BY_THEME = {
+  dark: DARK_SYNTAX,
+  light: LIGHT_SYNTAX,
+  "high-contrast": HC_SYNTAX,
+};
 const SNIPPETS = [
   { label: "func main", desc: "main function", text: 'func main() {\n\t$0\n}' },
   { label: "func Test", desc: "test function", text: 'func Test$1(t *testing.T) {\n\t$0\n}' },
@@ -145,7 +218,8 @@ export class TabbedEditor {
       extensions: [
         basicSetup,
         go(),
-        makeTheme(),
+        themeCompartment.of(THEMES.dark),
+        syntaxCompartment.of(syntaxHighlighting(DARK_SYNTAX)),
         keymap.of([indentWithTab]),
         EditorView.updateListener.of((update) => {
           if (update.docChanged && !this._programmaticChange) {
@@ -251,7 +325,6 @@ export class TabbedEditor {
     if (this.activePath === path) {
       this.activePath = this.tabs.length > 0 ? this.tabs[this.tabs.length - 1].path : "";
       if (this.activePath) {
-        // Content will be set by caller from file system
         this._renderTabs();
         this._setContent("");
         return this.activePath;
@@ -288,7 +361,6 @@ export class TabbedEditor {
   _activateTab(path) {
     this._activePath = path;
     this._renderTabs();
-    // Content must be provided by caller
   }
 
   _setContent(text) {
@@ -322,9 +394,13 @@ export class TabbedEditor {
 
   setTheme(themeName) {
     const theme = THEMES[themeName] ?? THEMES.dark;
+    const syntax = SYNTAX_BY_THEME[themeName] ?? DARK_SYNTAX;
     if (this.editorView) {
       this.editorView.dispatch({
-        effects: themeCompartment.reconfigure(theme),
+        effects: [
+          themeCompartment.reconfigure(theme),
+          syntaxCompartment.reconfigure(syntaxHighlighting(syntax)),
+        ],
       });
     }
   }

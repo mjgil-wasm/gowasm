@@ -123,6 +123,99 @@ func main() {
 }
 
 #[test]
+fn parses_slice_literals_with_anonymous_struct_element_types() {
+    let source = r#"
+package main
+
+import "testing"
+
+func TestAdd(t *testing.T) {
+    tests := []struct {
+        name     string
+        a        int
+        b        int
+        expected int
+    }{
+        {"positive numbers", 2, 3, 5},
+        {"negative numbers", -2, -4, -6},
+    }
+
+    _ = tests
+}
+"#;
+
+    let file = parse_source_file(source).expect("source should parse");
+    assert_eq!(
+        file.functions[0].body,
+        vec![
+            Stmt::ShortVarDecl {
+                name: "tests".into(),
+                value: Expr::SliceLiteral {
+                    element_type: "struct{name string;a int;b int;expected int}".into(),
+                    elements: vec![
+                        Expr::StructLiteral {
+                            type_name: "struct{name string;a int;b int;expected int}".into(),
+                            fields: vec![
+                                StructLiteralField {
+                                    name: String::new(),
+                                    value: Expr::StringLiteral("positive numbers".into()),
+                                },
+                                StructLiteralField {
+                                    name: String::new(),
+                                    value: Expr::IntLiteral(2),
+                                },
+                                StructLiteralField {
+                                    name: String::new(),
+                                    value: Expr::IntLiteral(3),
+                                },
+                                StructLiteralField {
+                                    name: String::new(),
+                                    value: Expr::IntLiteral(5),
+                                },
+                            ],
+                        },
+                        Expr::StructLiteral {
+                            type_name: "struct{name string;a int;b int;expected int}".into(),
+                            fields: vec![
+                                StructLiteralField {
+                                    name: String::new(),
+                                    value: Expr::StringLiteral("negative numbers".into()),
+                                },
+                                StructLiteralField {
+                                    name: String::new(),
+                                    value: Expr::Unary {
+                                        op: super::UnaryOp::Negate,
+                                        expr: Box::new(Expr::IntLiteral(2)),
+                                    },
+                                },
+                                StructLiteralField {
+                                    name: String::new(),
+                                    value: Expr::Unary {
+                                        op: super::UnaryOp::Negate,
+                                        expr: Box::new(Expr::IntLiteral(4)),
+                                    },
+                                },
+                                StructLiteralField {
+                                    name: String::new(),
+                                    value: Expr::Unary {
+                                        op: super::UnaryOp::Negate,
+                                        expr: Box::new(Expr::IntLiteral(6)),
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            },
+            Stmt::Assign {
+                target: AssignTarget::Ident("_".into()),
+                value: Expr::Ident("tests".into()),
+            },
+        ]
+    );
+}
+
+#[test]
 fn parses_imported_struct_literals() {
     let source = r#"
 package main
