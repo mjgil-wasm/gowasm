@@ -1,0 +1,101 @@
+c367907 feat: implement Create Browser Shell Diagnostic, Testdata Semantic Differential Interface, Net Url Differential Corpus and 4 more features
+57fe363 feat: implement Crates Host Types, Resolves Time Package Functions, Testdata Semantic Differential Interface and 1 more features
+ce083c7 feat: implement Builtin Delete And Builtin, Builtin And Builtin, Crates Vm Ops and 3 more features
+13bc368 feat: implement Testdata Semantic Differential Method, Create Browser Shell Hooks, Engine Run Resume Transcript and 1 more features
+76410de feat: implement Imported Package Release Gate, Sha1 Size Constant And, Create Browser Shell Cache and 1 more features
+a93df79 feat: implement Testdata Semantic Differential Pointer, Wait For Message And, Worker Context And Create and 3 more features
+7c187a3 feat: implement Rejects Function Map Key, Hex Decode Uppercase And, Crates Compiler Types and 1 more features
+e55688b feat: implement Start Browser Shell App, Testdata Semantic Differential Utf8, Create Worker and 1 more features
+1c52cdd feat: implement Mutating Slice Preserve Named, Generic, Crates Compiler Types Generics and 2 more features
+daebd57 feat: implement Io Fs Fs Open, Transfers Values Between Goroutines, Crates Compiler Defers and 1 more features
+50e5ed5 feat: implement Crates Vm Stdlib, Crates Compiler Types, Negative Support Corpus Covers and 1 more features
+dd2863f feat: implement JSON Output, Executes Path And Path, Testdata Reflect Fmt Differential and 1 more features
+7d3f040 feat: implement Testdata Semantic Differential Generic, Header Clone And Header, Testdata Semantic Differential Rune and 5 more features
+c921127 feat: implement Compute Md5 And Md5, Init, Io Fs File Mode and 4 more features
+b9e299a feat: implement Io Fs Differential Corpus, Testdata Semantic Differential Unwind, Map Vm Fetch Start and 6 more features
+76bc371 feat: implement Testdata Time Context Http, Run Command Benchmark Default, Run Browser Metric Benchmark and 6 more features
+2f775a2 feat: implement Crates Compiler Generics, Run Emits Request Context, Rejects To Int Conversion and 6 more features
+04e3919 feat: implement Executes Unicode To Simple, Net Http Response Copies, JSON Output and 6 more features
+a687851 feat: implement Web Run Js, Create Shell Actions, Fmt And Fmt Errorf and 4 more features
+f465084 feat: implement Callback Outcome And Invoke, Assigning Into Nil Maps, Testdata Path Differential Path and 5 more features
+6ed5c6c feat: implement Validate Scripts, Fuzz Corpus And Fuzz, Crates Compiler Generics Reuse and 5 more features
+99c5f3b feat: implement Strings Fields Func Spaces, JSON Output, Testdata Semantic Differential Numeric and 6 more features
+96ddfe5 feat: implement FFI Argument Handling, Testdata Parity Corpus Local, Testdata Semantic Differential Generic and 5 more features
+bbb5587 feat: implement JSON Output, Rejects Unsupported Workspace Go, Detects Multi Package Local and 7 more features
+ae0b287 feat: implement Slices Contains And Slices, First Interface Method Mismatch, Channel Id and 5 more features
+f5ebcd5 feat: implement Web Browser Capability Security, Module Fetch And Module, Slices Equal And Slices and 5 more features
+952e384 feat: implement Compiles And Runs Nil, Executes Strings Equal Fold, Bitwise Clears Integer Values and 5 more features
+40c1ba0 feat: implement Crates Parser Constraints, Net Url Runtime Userinfo, Crates Vm Stdlib Io and 5 more features
+22ccb99 feat: implement Web Browser Capability Security, Child IO, Crates Compiler Comparisons and 6 more features
+7e59c5c feat: implement Testdata Semantic Differential Nil, Parity Corpus Cases Pass, Testdata Crypto Encoding Differential and 5 more features
+b146deb feat: implement Log And Log Fatal, Md5 Size Constant And, Parse Http Time And and 5 more features
+e5f846f feat: implement Snippet Runner Diagnostic And, Crates Compiler Embedding Parity, Path Base And Path and 6 more features
+c855cab feat: implement Testdata Regexp Differential Invalid, Testdata Parity Corpus Imported, Imported Generic Function And and 5 more features
+943dba6 feat: implement Testdata Semantic Differential Named, Collect Diagnostic Links And, Reporting and 6 more features
+9d35fca feat: implement Compiles And Runs Strings, Crates Compiler Returns, Testdata Text Differential Bytes and 5 more features
+1e1ae5f feat: implement Profiling, Process Coordination, Testdata Parity Corpus Concurrent and 6 more features
+aa4360a feat: implement Unicode Arg And Unicode, Trim Right Boundary And, Bytes Fields Func And and 4 more features
+f48c7c9 feat: implement Compiles And Runs Sort, Crates Compiler Collections, Validate Package Corpus and 1 more features
+16b92b8 feat: implement Create Worker Shell Backend, Allows Assigning Pointer Values, Hash Value And Map and 5 more features
+f894ec8 feat: implement Seed Imported Interfaces And, Rebuild Graph Maps Module, Subfs Wrapper Resolves Fs and 5 more features
+645501d feat: implement Log Prints With Newline, Instruction Source Span, Scripts Differential Release Gate and 5 more features
+73af8ab feat: implement Crates Parser Generics, Testdata Reflect Fmt Differential, Compute Sha512 And Sha512 and 5 more features
+54970d1 feat: implement Crates Compiler Diagnostics Messages, Compile Request Resolves Remote, Allocate Type Id And and 7 more features
+749e235 feat: implement Compiles And Runs Gc, Crates Compiler Interfaces Parity, Parse Workspace Files and 7 more features
+5eed041 feat: implement Collect Garbage And Gc, Run Emits Request Context, Process Coordination and 4 more features
+38ad1eb feat: implement Parse Http Version, Visit Gc Roots And, Profiling and 5 more features
+0f36c43 feat: implement Default Select Reaches Broader, Close Wakes Broader Multi, CLI Parsing and 6 more features
+e1484e0 feat: implement Editable Workspace Files And, Url Userinfo And Url, Parse Package Decls And and 6 more features
+167e738 feat: implement Compiles And Runs Interface, FFI Argument Handling, Crates Compiler Calls and 6 more features
+5a90e64 feat: implement Parses Anonymous Empty Type, Parses Assignment Expression Lists, Testdata Math Differential Subnormal and 6 more features
+35b40a9 feat: implement Render Workspace Chrome And, Parses Select Receive And, Context Type Assertion Recognizes and 5 more features
+f14bfdc feat: implement Create Engine And Load, Crates Engine Fetch More, Differential Corpus Index And and 6 more features
+410201f feat: implement Compiles And Runs Filepath, Run Browser Capability Security, Semantic Differential Cases Match and 5 more features
+60f2fae feat: implement Vm Replay Config And, Expr Type Name And, Crates Compiler Closures and 5 more features
+749f3f6 feat: implement Compiles And Runs Strings, Crates Vm Globals, Web Browser Compatibility Runner and 5 more features
+36d21a7 feat: implement Testdata Io Fs Differential, Crates Compiler Control Flow, Stdlib Differential Runner Rejects and 5 more features
+4505db6 feat: implement Compile Error, Math And Math Abs, Web Browser Shell Cache and 5 more features
+2a62c68 feat: implement FFI Argument Handling, Crates Vm Stdlib Time, Testdata Text Differential Strings and 5 more features
+03b69d6 feat: implement Strconv Bool And Strconv, Testdata Semantic Differential Short, Sha512 Size Constant And and 5 more features
+cb3cc9d feat: implement Extend Reflect Interfaces And, Testdata Semantic Differential Assignment, Compiler Phase And Phase and 5 more features
+425e2de feat: implement Testdata Semantic Differential Generic, Assemble Compiled Workspace And, Testdata Semantic Differential Make and 6 more features
+49effcd feat: implement Filepath Abs And Filepath, Web Browser Shell Dom, Manifest File And Manifest and 5 more features
+2c880df feat: implement Web Browser Shell Cancellation, Net Url Raw Hint, Parses Bitwise And With and 5 more features
+062acad feat: implement Strings Split N And, Compiles And Runs Var, Math Ilogb And Math and 5 more features
+800ed2c feat: implement Testdata Parity Corpus Imported, Seed Browser Shell Example, Dispose Active Worker And and 6 more features
+0cc8cc1 feat: implement Compiles And Runs Path, Testdata Parity Corpus Local, Executes Strings Split N and 4 more features
+9f32e45 feat: implement Maps Delete Func And, Maps Equal Handles Large, FFI Argument Handling and 5 more features
+5304b49 feat: implement Testdata Semantic Differential Invalid, Source Excerpt For Offsets, Traced Vm Error And and 6 more features
+313ab1a feat: implement Testdata Parity Corpus Workspace, Compiles And Runs Method, Compiles And Runs Generic and 7 more features
+4a6df9b feat: implement Crates Parser Signatures, Timeout Handling, Package and 6 more features
+a95fd07 feat: implement Compiles And Runs Rand, Type Float64 And Type, Math Differential Corpus Matches and 6 more features
+1ae02c7 feat: implement Is Case Or Default, Is, Testdata Time Context Http and 7 more features
+64c8ac5 feat: implement Map Runtime Stack Frame, Runtime Suggested Action And, Sort Search Empty And and 6 more features
+8ca2409 feat: implement Web Browser Shell Snapshot, JSON Output, Crates Vm Gc Stress and 5 more features
+432398d feat: implement Executes Sort Queries And, Parse Interface Type Body, Crates Lexer and 5 more features
+9428244 feat: implement Crates Vm Stdlib Net, Crates Parser Builtins, JSON Output and 4 more features
+022f96e feat: implement Testdata Errors Differential Join, Testdata Semantic Differential Unwind, Utf8 Valid And Utf8 and 5 more features
+e68db03 feat: implement Eval Binary And Eval, Compute Sha1 And Sha1, Testdata Semantic Differential Closure and 5 more features
+aaa3590 feat: implement Testdata Strconv Differential Quote, Parse Simple Stmt, Sort Float64s Are Sorted and 5 more features
+c551dd8 feat: implement Build Metadata, Crates Parser Globals, Crates Parser Concurrency and 5 more features
+6546854 feat: implement Compile Int Binary, Browser Shell Workspace Ui, Browser Acceptance Runner Lists and 5 more features
+f744773 feat: implement Blocking Select Ignores Nil, Request And Engine, Engine and 6 more features
+e8b36dc feat: implement Reporting, Testdata Semantic Differential Assignment, Diagnostic Golden And Response and 5 more features
+0e21a65 feat: implement Crates Compiler Assignments, Type Check And Vm, Vm and 6 more features
+e81ef99 feat: implement Resolve Stdlib Value, Testdata Parity Corpus Mixed, Generic Type Switches Match and 6 more features
+861b023 feat: implement Execute Instruction, Compiles And Runs Remote, Compiles And Runs Imported and 7 more features
+e26f645 feat: implement Boot Reports Engine Info, Capture Analyzer And Capture, Value And Value and 6 more features
+2fe1970 feat: implement Testdata Semantic Differential Interface, Browser Shell Error Ui, Testdata Semantic Differential Closure and 6 more features
+c2fa286 feat: implement Blocking Select Rotates Ready, Sha256 Size Constant And, Compiles And Runs Unicode and 5 more features
+66c7f00 feat: implement Url Url Hostname And, Compile Package Artifact In, Testdata Semantic Differential Short and 6 more features
+2b71ea6 feat: implement FFI Argument Handling, Function Source Spans And, Regexp Differential Corpus Matches and 6 more features
+1730547 feat: implement Testdata Semantic Differential Package, Compile Block And Compile, Compiler and 7 more features
+668fc67 feat: implement CLI Parsing, Parser, Maps Clone And Maps and 5 more features
+7df38d2 feat: implement Sniff Signature, Testdata Collections Differential Nil, Testdata Collections Differential Generic and 5 more features
+cb26b8d feat: implement FFI Argument Handling, Module And Tooling End, Extract Request Body Id and 6 more features
+ff2be7d feat: implement Testdata Log Differential Prefix, Runtime Send On Closed, Scripts Generate Release Artifact and 5 more features
+63cafe2 feat: implement Regexp Regexp Match And, Collect Globals, Resolves Strings Replacer Constructor and 5 more features
+cdb25a7 feat: implement Time Context Http Differential, Compiles And Runs Returned, JSON Output and 5 more features
+3463f17 feat: implement Lookup Module Cache And, Process Status, Timeout Handling and 6 more features
+a018b09 feat: implement Testdata Reflect Fmt Differential, Create Baseline Archive Data, Run Soak Suite and 8 more features
+c7b7e98 chore: add project configuration and documentation

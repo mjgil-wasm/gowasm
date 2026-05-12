@@ -92,12 +92,24 @@
       .workspace-shell {
         display: grid;
         gap: 16px;
-        grid-template-columns: minmax(240px, 0.42fr) minmax(0, 0.58fr);
+        grid-template-columns: 260px 1fr;
+        transition: grid-template-columns 0.25s ease;
+      }
+
+      .workspace-shell.collapsed {
+        grid-template-columns: 0px 1fr;
       }
 
       .sidebar {
         display: grid;
         gap: 14px;
+        overflow: hidden;
+        transition: opacity 0.2s ease;
+      }
+
+      .workspace-shell.collapsed .sidebar {
+        opacity: 0;
+        pointer-events: none;
       }
 
       .sidebar-section {
@@ -158,13 +170,80 @@
         white-space: pre-wrap;
       }
 
-      .editor-column {
-        display: grid;
+      .editor-area {
+        display: flex;
+        flex-direction: column;
         gap: 12px;
+        min-height: 0;
       }
 
-      .editor-column textarea[readonly] {
-        background: #f7f4ee;
+      .editor-tabs {
+        display: flex;
+        gap: 4px;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 6px;
+      }
+
+      .editor-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid var(--line);
+        cursor: pointer;
+        font: 13px/1 "Iosevka Term", "IBM Plex Mono", monospace;
+        white-space: nowrap;
+      }
+
+      .editor-tab.active {
+        background: linear-gradient(135deg, var(--accent), #118a6f);
+        color: #f7f7f2;
+        border-color: transparent;
+      }
+
+      .editor-tab .tab-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: none;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0;
+      }
+
+      .editor-tab .tab-dirty {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent-2);
+        display: inline-block;
+      }
+
+      .editor-container {
+        flex: 1;
+        min-height: 0;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+
+      .cm-editor {
+        height: 100%;
+      }
+
+      .cm-scroller {
+        font-family: "Iosevka Term", "IBM Plex Mono", monospace;
+        font-size: 15px;
+        line-height: 1.55;
       }
 
       .inline-actions {
@@ -444,6 +523,10 @@
           grid-template-columns: 1fr;
         }
 
+        .workspace-shell.collapsed {
+          grid-template-columns: 1fr;
+        }
+
         select,
         textarea,
         pre {
@@ -471,7 +554,10 @@
       <section class="workspace">
         <article class="panel">
           <div class="toolbar">
-            <strong id="editor-file-label">main.go</strong>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button id="sidebar-toggle" class="secondary" type="button" title="Toggle file panel">☰</button>
+              <strong id="editor-file-label">main.go</strong>
+            </div>
             <div class="actions">
               <button id="load-modules-button" class="secondary" type="button">Load Modules</button>
               <button id="test-package-button" class="secondary" type="button">Test Package</button>
@@ -485,8 +571,8 @@
             </div>
           </div>
 
-          <div class="workspace-shell">
-            <aside class="sidebar">
+          <div class="workspace-shell" id="workspace-shell">
+            <aside class="sidebar" id="sidebar">
               <section class="sidebar-section">
                 <span class="section-label">Workspace Files</span>
                 <p id="workspace-dirty-status" class="note"></p>
@@ -669,8 +755,9 @@
               </section>
             </aside>
 
-            <div class="editor-column">
-              <textarea id="source" spellcheck="false"></textarea>
+            <div class="editor-area">
+              <div id="editor-tabs"></div>
+              <div id="editor" class="editor-container"></div>
               <p class="note">
                 <span class="accent">Run and test requests automatically combine the editable
                 workspace with any loaded remote module bundles.</span> Format and lint stay scoped

@@ -1,6 +1,7 @@
 import {
   click,
   control,
+  selectedSource,
   unloadShellFrame,
   waitFor,
   waitForShellReady,
@@ -38,7 +39,7 @@ func main() {
     await waitForShellReady(doc);
     assert(
       control(doc, "boot-url-status").textContent.includes("awaiting explicit load consent")
-        && control(doc, "source").value.includes("worker shell"),
+        && selectedSource(doc).includes("worker shell"),
       "browser shell boot URL waits for explicit consent before fetching a remote manifest",
       shellSnapshot(doc),
     );
@@ -47,7 +48,7 @@ func main() {
       () =>
         control(doc, "status").textContent === "Boot manifest loaded"
           && control(doc, "entry-path-input").value === "cmd/app/main.go"
-          && control(doc, "source").value.includes("manual-consent"),
+          && selectedSource(doc).includes("manual-consent"),
       "manual boot-manifest load completed",
       doc,
     );

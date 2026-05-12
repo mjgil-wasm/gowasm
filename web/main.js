@@ -48,26 +48,30 @@ import {
   resolveSelectedDisplayFile,
   resolveSelectedWorkspaceFile,
 } from "./browser-shell-workspace-ui.js";
+import { selectionOffsetsForTarget } from "./browser-shell-source-links.js";
+import { EditorView } from "https://esm.sh/@codemirror/view";
+import { EditorSelection, Compartment } from "https://esm.sh/@codemirror/state";
+import { basicSetup } from "https://esm.sh/codemirror";
+import { go } from "https://esm.sh/@codemirror/lang-go";
 
 const {
   addFileButton, archiveFileInput, archiveImportButton, archiveUrlImportButton, archiveUrlInput,
   bootUrlLoadButton, bootUrlPanel, bootUrlStatus, cacheStatus, cancelButton,
   clearAllCachesButton, clearModuleCacheButton, clearWorkspaceCacheButton, compatibilityStatus,
-  diagnosticSummary, diagnosticSummaryPanel, editorFileLabel, entryPathInput, exampleSelect,
+  diagnosticSummary, diagnosticSummaryPanel, editor, editorFileLabel, editorTabs, entryPathInput, exampleSelect,
   exampleSummary, fileList, filePathInput, formatButton, lintButton, loadExampleButton,
   loadModulesButton, moduleRootsInput, moduleStatus, output, packageTargetInput,
   refreshCacheButton, removeFileButton, renameFileButton, renamePathInput,
-  restoreCachedWorkspaceButton, runButton, snapshotExportButton, snapshotFileInput,
-  snapshotImportButton, source, sourceLinks, sourceLinksPanel, status, testPackageButton,
+  restoreCachedWorkspaceButton, runButton, sidebar, sidebarToggle, snapshotExportButton, snapshotFileInput,
+  snapshotImportButton, sourceLinks, sourceLinksPanel, status, testPackageButton,
   testSnippetButton, useSelectedEntryButton, useSelectedPackageButton, workspaceDirtyStatus,
-  workspaceSelectionNote, workspaceTree,
+  workspaceSelectionNote, workspaceShell, workspaceTree,
 } = browserShellDom;
 
 const EMPTY_MODULES_KEY = moduleRootsConfigKey([]);
 
 entryPathInput.value = "main.go";
 packageTargetInput.value = "";
-source.value = "";
 
 let workspaceFiles = cloneWorkspaceFiles(DEFAULT_BROWSER_WORKSPACE_FILES);
 let workspaceBaselineFiles = cloneWorkspaceFiles(DEFAULT_BROWSER_WORKSPACE_FILES);
@@ -86,9 +90,28 @@ let exampleController;
 let bootController;
 let snapshotController;
 let cacheController;
+
+let editorView = null;
+let lastRenderedPath = "";
+let openTabs = [];
+let activeTabPath = "";
+const editableCompartment = new Compartment();
+
 const browserCompatibility = evaluateBrowserCompatibility(window);
 const browserShellTestHooks = createBrowserShellTestHooks(window);
 const unsupportedBrowserMessage = "Browser compatibility check failed.\n\n" + formatBrowserCompatibilityReport(browserCompatibility);
+
+function applyEditorSelectionCm(view, fileContents, target) {
+  const selection = selectionOffsetsForTarget(fileContents, target);
+  if (!selection) return false;
+  view.focus();
+  view.dispatch({
+    selection: EditorSelection.create([EditorSelection.range(selection.start, selection.end)]),
+    scrollIntoView: true,
+  });
+  return true;
+}
+
 const { setOutputView } = createBrowserShellDiagnosticUi({
   diagnosticSummaryElement: diagnosticSummary,
   diagnosticSummaryPanelElement: diagnosticSummaryPanel,
@@ -99,10 +122,11 @@ const { setOutputView } = createBrowserShellDiagnosticUi({
   setSelectedFilePath(nextPath) {
     selectedFilePath = nextPath;
   },
-  sourceElement: source,
+  applyEditorSelection: (contents, link) => applyEditorSelectionCm(editorView, contents, link),
   sourceLinksPanelElement: sourceLinksPanel,
   statusElement: status,
 });
+
 const shellBackend = createWorkerShellBackend({
   cancellationTimeoutView,
   clearTimer(timerId) {
@@ -252,6 +276,7 @@ const shellBackend = createWorkerShellBackend({
     return self.setTimeout(callback, durationMs);
   },
 });
+
 const shellActions = createShellActions({
   archiveUrlInput,
   beginWorkerRequest: beginBackendRequest,
@@ -305,6 +330,7 @@ const shellActions = createShellActions({
   statusElement: status,
   syncControls,
 });
+
 const {
   addWorkspaceFile,
   importArchiveFromFile,
@@ -320,10 +346,12 @@ const {
   setSelectedAsPackageTarget,
   startModuleLoad,
 } = shellActions;
+
 const resetLoadedModules = () => {
   loadedModuleBundles = []; loadedModuleRootsKey = EMPTY_MODULES_KEY;
   loadedModuleBundlesStale = false; lastModuleLoadError = "";
 };
+
 ({ bootController, snapshotController, cacheController } = createBrowserShellControllers({
   bootUrlPanel,
   bootUrlStatus,
@@ -363,6 +391,7 @@ const resetLoadedModules = () => {
   },
   syncControls,
 }));
+
 exampleController = createPackagedExampleController({
   cacheSchemaVersion: cacheController.cacheSchemaVersion ?? 1,
   entryPathInput,
@@ -408,7 +437,6 @@ startBrowserShellApp({
   handleFileListChange,
   handleLoadModules,
   handleModuleRootsInput,
-  handleSourceInput,
   handleWorkspaceTargetInput,
   importArchiveFromFile,
   importArchiveFromUrl,
@@ -441,7 +469,6 @@ startBrowserShellApp({
   snapshotExportButton,
   snapshotFileInput,
   snapshotImportButton,
-  source,
   statusElement: status,
   syncControls,
   testPackageButton,
@@ -494,6 +521,7 @@ function selectedWorkspaceFile() {
 function selectedFileIsEditable() {
   return Boolean(selectedWorkspaceFile());
 }
+
 function parseConfiguredModules() {
   return parseModuleGraphRoots(moduleRootsInput.value);
 }
@@ -504,6 +532,98 @@ function configuredModulesMatchLoaded(modules) {
 
 function renderCompatibilityStatus() {
   compatibilityStatus.textContent = formatBrowserCompatibilityReport(browserCompatibility);
+}
+
+function isFileDirty(path) {
+  const baseline = workspaceBaselineFiles.find((f) => f.path === path);
+  const current = workspaceFiles.find((f) => f.path === path);
+  if (!current) return false;
+  if (!baseline) return true;
+  return baseline.contents !== current.contents;
+}
+
+function openOrFocusTab(path) {
+  if (!openTabs.some((t) => t.path === path)) {
+    openTabs.push({ path });
+  }
+  activeTabPath = path;
+}
+
+function closeTab(path) {
+  openTabs = openTabs.filter((t) => t.path !== path);
+  if (activeTabPath === path) {
+    activeTabPath = openTabs.length > 0 ? openTabs[openTabs.length - 1].path : "";
+    if (activeTabPath) {
+      selectedFilePath = activeTabPath;
+    } else if (workspaceFiles.length > 0) {
+      selectedFilePath = workspaceFiles[0].path;
+      activeTabPath = selectedFilePath;
+      openTabs.push({ path: selectedFilePath });
+    } else {
+      selectedFilePath = "";
+      activeTabPath = "";
+    }
+  }
+  renderWorkspace();
+}
+
+function renderTabs() {
+  editorTabs.replaceChildren();
+  for (const tab of openTabs) {
+    const btn = document.createElement("button");
+    btn.className = "editor-tab" + (tab.path === activeTabPath ? " active" : "");
+    btn.type = "button";
+
+    const label = document.createElement("span");
+    label.textContent = tab.path.split("/").pop();
+    btn.append(label);
+
+    if (isFileDirty(tab.path)) {
+      const dot = document.createElement("span");
+      dot.className = "tab-dirty";
+      btn.append(dot);
+    }
+
+    const close = document.createElement("button");
+    close.className = "tab-close";
+    close.type = "button";
+    close.textContent = "×";
+    close.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeTab(tab.path);
+    });
+    btn.append(close);
+
+    btn.addEventListener("click", () => {
+      activeTabPath = tab.path;
+      selectedFilePath = tab.path;
+      renderWorkspace();
+    });
+
+    editorTabs.append(btn);
+  }
+}
+
+function createEditor(initialContent) {
+  editorView = new EditorView({
+    doc: initialContent,
+    extensions: [
+      basicSetup,
+      go(),
+      editableCompartment.of(EditorView.editable.of(true)),
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          handleSourceInput(update.state.doc.toString());
+        }
+      }),
+      EditorView.theme({
+        "&": { height: "100%" },
+        ".cm-scroller": { overflow: "auto" },
+      }),
+    ],
+    parent: editor,
+  });
+  window._codeEditorView = editorView;
 }
 
 function setWorkspaceFiles(nextFiles, preferredSelectedPath = selectedFilePath, options = {}) {
@@ -520,6 +640,12 @@ function setWorkspaceFiles(nextFiles, preferredSelectedPath = selectedFilePath, 
   } else {
     selectedFilePath = "";
   }
+
+  openTabs = openTabs.filter((t) => workspaceFiles.some((f) => f.path === t.path));
+  if (selectedFilePath && !openTabs.some((t) => t.path === selectedFilePath)) {
+    openTabs.push({ path: selectedFilePath });
+  }
+  activeTabPath = selectedFilePath;
 
   renderWorkspace();
 }
@@ -549,11 +675,36 @@ function renderWorkspace() {
     selectedFilePath = displayFiles[0].path;
   }
   const selected = selectedDisplayFile();
-  source.value = selected?.contents ?? "";
+
   if (selected) {
-    fileList.value = selected.path;
+    if (!editorView) {
+      createEditor(selected.contents);
+    } else {
+      const currentDoc = editorView.state.doc.toString();
+      const changedFile = selected.path !== lastRenderedPath;
+      if (changedFile || currentDoc !== selected.contents) {
+        editorView.dispatch({
+          changes: { from: 0, to: editorView.state.doc.length, insert: selected.contents },
+          selection: EditorSelection.cursor(0),
+        });
+      }
+    }
+    lastRenderedPath = selected.path;
+    if (selected.path) {
+      fileList.value = selected.path;
+    }
+    openOrFocusTab(selected.path);
+  } else {
+    if (editorView) {
+      editorView.dispatch({
+        changes: { from: 0, to: editorView.state.doc.length, insert: "" },
+        selection: EditorSelection.cursor(0),
+      });
+    }
+    lastRenderedPath = "";
   }
 
+  renderTabs();
   renderWorkspaceSidebarState();
   syncControls();
 }
@@ -593,6 +744,7 @@ function renderModuleStatus() {
     lastLoadError: lastModuleLoadError,
   });
 }
+
 function syncControls() {
   const busy = isBusy();
   const backendState = shellBackend.currentState();
@@ -620,8 +772,6 @@ function syncControls() {
   snapshotExportButton.disabled = busy;
   snapshotImportButton.disabled = busy;
   snapshotFileInput.disabled = busy;
-  source.disabled = busy || !selected;
-  source.readOnly = !source.disabled && !editableSelection;
   entryPathInput.disabled = busy;
   packageTargetInput.disabled = busy;
   moduleRootsInput.disabled = busy;
@@ -643,6 +793,13 @@ function syncControls() {
   formatButton.disabled = !workerActionsAvailable;
   runButton.disabled = !workerActionsAvailable;
   cancelButton.disabled = !canCancelActiveRequest() || backendState.cancelPending;
+
+  if (editorView) {
+    const editable = !busy && selected && editableSelection;
+    editorView.dispatch({
+      effects: editableCompartment.reconfigure(EditorView.editable.of(editable)),
+    });
+  }
 }
 
 function clearPendingModuleContinuation() {
@@ -678,6 +835,7 @@ function handleFileListChange(nextPathValue) {
     return;
   }
   selectedFilePath = nextPath;
+  openOrFocusTab(nextPath);
   renderWorkspace();
 }
 
@@ -691,6 +849,7 @@ function handleSourceInput(nextValue) {
     contents: nextValue,
   });
   renderWorkspaceSidebarState();
+  renderTabs();
   syncControls();
 }
 
@@ -747,3 +906,7 @@ function handleLoadModules() {
     continuation: null,
   });
 }
+
+sidebarToggle.addEventListener("click", () => {
+  workspaceShell.classList.toggle("collapsed");
+});
