@@ -1,4 +1,4 @@
-import { EditorView, keymap, lineNumbers } from "https://esm.sh/@codemirror/view";
+import { EditorView, keymap } from "https://esm.sh/@codemirror/view";
 import { EditorState, Compartment } from "https://esm.sh/@codemirror/state";
 import { basicSetup } from "https://esm.sh/codemirror";
 import { go } from "https://esm.sh/@codemirror/lang-go";
@@ -29,7 +29,10 @@ function makeTheme() {
       backgroundColor: "rgba(0, 119, 170, 0.3)",
     },
     ".cm-cursor": {
-      borderLeftColor: "#e0e0e0",
+      borderLeft: "1.2px solid #e0e0e0",
+    },
+    ".cm-content": {
+      caretColor: "#e0e0e0",
     },
     ".cm-scroller": {
       fontFamily: 'ui-monospace, "Cascadia Code", "Fira Code", monospace',
@@ -59,6 +62,7 @@ export class TabbedEditor {
     this.editorView = null;
     this.snippetsEl = document.getElementById("snippets");
     this.snippetIndex = -1;
+    this._programmaticChange = false;
     this._buildDOM();
     this._initEditor();
     this._bindKeys();
@@ -74,13 +78,11 @@ export class TabbedEditor {
       doc: "",
       extensions: [
         basicSetup,
-        lineNumbers(),
         go(),
         makeTheme(),
-        themeCompartment.of(makeTheme()),
         keymap.of([indentWithTab]),
         EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
+          if (update.docChanged && !this._programmaticChange) {
             this._handleChange(update.state.doc.toString());
           }
         }),
@@ -117,6 +119,7 @@ export class TabbedEditor {
   }
 
   _handleChange(text) {
+    if (this._programmaticChange) return;
     if (this.activePath) {
       this.dirty.add(this.activePath);
       this._renderTabs();
@@ -224,22 +227,13 @@ export class TabbedEditor {
 
   _setContent(text) {
     if (!this.editorView) return;
-    const state = EditorState.create({
-      doc: text,
-      extensions: this.editorView.state.facet(EditorView.editable) ? this.editorView.state.reconfiguration : [
-        basicSetup,
-        lineNumbers(),
-        go(),
-        makeTheme(),
-        keymap.of([indentWithTab]),
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
-            this._handleChange(update.state.doc.toString());
-          }
-        }),
-      ],
+    const current = this.editorView.state.doc.toString();
+    if (current === text) return;
+    this._programmaticChange = true;
+    this.editorView.dispatch({
+      changes: { from: 0, to: this.editorView.state.doc.length, insert: text },
     });
-    this.editorView.setState(state);
+    this._programmaticChange = false;
   }
 
   getContent() {
