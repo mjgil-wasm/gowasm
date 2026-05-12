@@ -398,7 +398,7 @@ impl InventoryBuilder<'_> {
     }
 
     fn named_type_package_path(&self, typ: &str) -> Option<String> {
-        if matches!(typ, "struct{}") {
+        if typ == "struct{}" || typ.starts_with("struct{") {
             return None;
         }
         qualified_package_path(typ).or_else(|| match self.package_path {

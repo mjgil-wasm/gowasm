@@ -129,6 +129,8 @@ pub const TYPE_REFLECT_VALUE: TypeId = TypeId(56);
 pub const TYPE_REFLECT_RVALUE: TypeId = TypeId(57);
 pub const TYPE_REFLECT_STRUCT_TAG: TypeId = TypeId(58);
 pub const TYPE_INT64: TypeId = TypeId(59);
+pub const TYPE_TESTING_T: TypeId = TypeId(60);
+pub const TYPE_TESTING_T_PTR: TypeId = TypeId(61);
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TypeCheck {

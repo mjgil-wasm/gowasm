@@ -1,8 +1,8 @@
-import { testBrowserShellEditor } from "./test-browser-shell-editor.js";
+import { testBrowserShellMainPackageTestingImportDiagnostic } from "./test-browser-shell-package-tests.js";
 
+const frame = document.querySelector("#shell-frame");
 const results = document.querySelector("#results");
 const summary = document.querySelector("#summary");
-const frame = document.querySelector("#shell-frame");
 const ciMode = new URLSearchParams(window.location.search).has("ci");
 
 let passed = 0;
@@ -32,9 +32,9 @@ function finishCiSummary(text, className) {
   });
 }
 
-async function runAll() {
+async function run() {
   try {
-    await testBrowserShellEditor({ assert, frame, log });
+    await testBrowserShellMainPackageTestingImportDiagnostic({ assert, frame, log });
   } catch (error) {
     failed += 1;
     log(error?.stack || error?.message || String(error));
@@ -42,12 +42,12 @@ async function runAll() {
 
   if (failed === 0) {
     summary.className = "pass";
-    summary.textContent = `all browser shell editor tests passed (${passed} assertions)`;
+    summary.textContent = `all browser shell package-test regression tests passed (${passed} assertions)`;
   } else {
     summary.className = "fail";
-    summary.textContent = `${failed} browser shell editor failure(s), ${passed} assertions passed\n${results.textContent.trim()}`;
+    summary.textContent = `${failed} browser shell package-test regression failure(s), ${passed} assertions passed\n${results.textContent.trim()}`;
   }
   finishCiSummary(summary.textContent, summary.className);
 }
 
-void runAll();
+void run();

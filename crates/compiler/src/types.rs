@@ -1,14 +1,16 @@
 use std::collections::HashMap;
 
 use gowasm_parser::{
-    BinaryOp, InterfaceMethodDecl, Parameter, SourceFile, TypeDeclKind, TypeFieldDecl,
+    parse_type_repr, BinaryOp, Expr, InterfaceMethodDecl, Parameter, SourceFile, Stmt,
+    TypeDeclKind, TypeFieldDecl, TypeRepr,
 };
 use gowasm_vm::{
     CompareOp, TypeId, TYPE_BASE64_ENCODING_PTR, TYPE_FS_FILE_MODE, TYPE_HTTP_CLIENT_PTR,
     TYPE_HTTP_HEADER, TYPE_HTTP_REQUEST_PTR, TYPE_HTTP_RESPONSE_PTR, TYPE_REFLECT_KIND,
     TYPE_REFLECT_STRUCT_TAG, TYPE_REGEXP, TYPE_STRINGS_REPLACER, TYPE_SYNC_MUTEX_PTR,
-    TYPE_SYNC_ONCE_PTR, TYPE_SYNC_RW_MUTEX_PTR, TYPE_SYNC_WAIT_GROUP_PTR, TYPE_TIME_DURATION,
-    TYPE_TIME_PTR, TYPE_TIME_TIMER_PTR, TYPE_URL_PTR, TYPE_URL_USERINFO_PTR, TYPE_URL_VALUES,
+    TYPE_SYNC_ONCE_PTR, TYPE_SYNC_RW_MUTEX_PTR, TYPE_SYNC_WAIT_GROUP_PTR, TYPE_TESTING_T_PTR,
+    TYPE_TIME_DURATION, TYPE_TIME_PTR, TYPE_TIME_TIMER_PTR, TYPE_URL_PTR, TYPE_URL_USERINFO_PTR,
+    TYPE_URL_VALUES,
 };
 use serde::{Deserialize, Serialize};
 
@@ -206,6 +208,7 @@ pub(crate) fn collect_type_tables<'a>(
     imported_impl::seed_imported_interfaces(&mut interfaces);
     let mut pointers = HashMap::from([
         ("*base64.Encoding".into(), TYPE_BASE64_ENCODING_PTR),
+        ("*testing.T".into(), TYPE_TESTING_T_PTR),
         ("*regexp.Regexp".into(), TYPE_REGEXP),
         ("*strings.Replacer".into(), TYPE_STRINGS_REPLACER),
         ("*sync.WaitGroup".into(), TYPE_SYNC_WAIT_GROUP_PTR),
@@ -273,6 +276,10 @@ pub(crate) fn collect_type_tables<'a>(
     let mut pending_embeds: Vec<(String, Vec<String>)> = Vec::new();
     let mut generic_types = HashMap::new();
     let mut generic_functions = HashMap::new();
+
+    for (_path, file) in &files {
+        collect_anonymous_struct_types(file, &mut structs, &mut pointers, &mut next_type_id)?;
+    }
 
     for (_path, file) in &files {
         for type_decl in &file.types {
@@ -427,6 +434,468 @@ pub(crate) fn collect_type_tables<'a>(
         generic_types,
         instantiation_cache: InstantiationCache::default(),
     })
+}
+
+fn collect_anonymous_struct_types(
+    file: &SourceFile,
+    structs: &mut HashMap<String, StructTypeDef>,
+    pointers: &mut HashMap<String, TypeId>,
+    next_type_id: &mut u32,
+) -> Result<(), CompileError> {
+    for type_decl in &file.types {
+        match &type_decl.kind {
+            TypeDeclKind::Struct { fields } => {
+                for field in fields {
+                    register_anonymous_structs_from_type(
+                        &field.typ,
+                        structs,
+                        pointers,
+                        next_type_id,
+                    )?;
+                }
+            }
+            TypeDeclKind::Interface { methods, .. } => {
+                for method in methods {
+                    for param in &method.params {
+                        register_anonymous_structs_from_type(
+                            &param.typ,
+                            structs,
+                            pointers,
+                            next_type_id,
+                        )?;
+                    }
+                    for result in &method.result_types {
+                        register_anonymous_structs_from_type(
+                            result,
+                            structs,
+                            pointers,
+                            next_type_id,
+                        )?;
+                    }
+                }
+            }
+            TypeDeclKind::Alias { underlying } => {
+                register_anonymous_structs_from_type(underlying, structs, pointers, next_type_id)?;
+            }
+        }
+    }
+
+    for var in &file.vars {
+        if let Some(typ) = &var.typ {
+            register_anonymous_structs_from_type(typ, structs, pointers, next_type_id)?;
+        }
+        if let Some(value) = &var.value {
+            register_anonymous_structs_from_expr(value, structs, pointers, next_type_id)?;
+        }
+    }
+
+    for konst in &file.consts {
+        if let Some(typ) = &konst.typ {
+            register_anonymous_structs_from_type(typ, structs, pointers, next_type_id)?;
+        }
+        register_anonymous_structs_from_expr(&konst.value, structs, pointers, next_type_id)?;
+    }
+
+    for function in &file.functions {
+        if let Some(receiver) = &function.receiver {
+            register_anonymous_structs_from_type(&receiver.typ, structs, pointers, next_type_id)?;
+        }
+        for param in &function.params {
+            register_anonymous_structs_from_type(&param.typ, structs, pointers, next_type_id)?;
+        }
+        for result in &function.result_types {
+            register_anonymous_structs_from_type(result, structs, pointers, next_type_id)?;
+        }
+        for stmt in &function.body {
+            register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+        }
+    }
+
+    Ok(())
+}
+
+fn register_anonymous_structs_from_stmt(
+    stmt: &Stmt,
+    structs: &mut HashMap<String, StructTypeDef>,
+    pointers: &mut HashMap<String, TypeId>,
+    next_type_id: &mut u32,
+) -> Result<(), CompileError> {
+    match stmt {
+        Stmt::Expr(expr) | Stmt::ShortVarDecl { value: expr, .. } => {
+            register_anonymous_structs_from_expr(expr, structs, pointers, next_type_id)
+        }
+        Stmt::VarDecl { typ, value, .. } => {
+            if let Some(typ) = typ {
+                register_anonymous_structs_from_type(typ, structs, pointers, next_type_id)?;
+            }
+            if let Some(value) = value {
+                register_anonymous_structs_from_expr(value, structs, pointers, next_type_id)?;
+            }
+            Ok(())
+        }
+        Stmt::ConstDecl { typ, value, .. } => {
+            if let Some(typ) = typ {
+                register_anonymous_structs_from_type(typ, structs, pointers, next_type_id)?;
+            }
+            register_anonymous_structs_from_expr(value, structs, pointers, next_type_id)
+        }
+        Stmt::ConstGroup { decls } => {
+            for decl in decls {
+                if let Some(typ) = &decl.typ {
+                    register_anonymous_structs_from_type(typ, structs, pointers, next_type_id)?;
+                }
+                register_anonymous_structs_from_expr(&decl.value, structs, pointers, next_type_id)?;
+            }
+            Ok(())
+        }
+        Stmt::ShortVarDeclPair { value, .. }
+        | Stmt::ShortVarDeclTriple { value, .. }
+        | Stmt::ShortVarDeclQuad { value, .. }
+        | Stmt::Assign { value, .. }
+        | Stmt::AssignPair { value, .. }
+        | Stmt::AssignTriple { value, .. }
+        | Stmt::AssignQuad { value, .. }
+        | Stmt::Send { value, .. }
+        | Stmt::Go { call: value }
+        | Stmt::Defer { call: value } => {
+            register_anonymous_structs_from_expr(value, structs, pointers, next_type_id)
+        }
+        Stmt::ShortVarDeclList { values, .. } | Stmt::AssignList { values, .. } => {
+            for value in values {
+                register_anonymous_structs_from_expr(value, structs, pointers, next_type_id)?;
+            }
+            Ok(())
+        }
+        Stmt::If {
+            init,
+            condition,
+            then_body,
+            else_body,
+        } => {
+            if let Some(init) = init {
+                register_anonymous_structs_from_stmt(init, structs, pointers, next_type_id)?;
+            }
+            register_anonymous_structs_from_expr(condition, structs, pointers, next_type_id)?;
+            for stmt in then_body {
+                register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+            }
+            if let Some(else_body) = else_body {
+                for stmt in else_body {
+                    register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+                }
+            }
+            Ok(())
+        }
+        Stmt::For {
+            init,
+            condition,
+            post,
+            body,
+        } => {
+            if let Some(init) = init {
+                register_anonymous_structs_from_stmt(init, structs, pointers, next_type_id)?;
+            }
+            if let Some(condition) = condition {
+                register_anonymous_structs_from_expr(condition, structs, pointers, next_type_id)?;
+            }
+            if let Some(post) = post {
+                register_anonymous_structs_from_stmt(post, structs, pointers, next_type_id)?;
+            }
+            for stmt in body {
+                register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+            }
+            Ok(())
+        }
+        Stmt::RangeFor { expr, body, .. } => {
+            register_anonymous_structs_from_expr(expr, structs, pointers, next_type_id)?;
+            for stmt in body {
+                register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+            }
+            Ok(())
+        }
+        Stmt::Switch {
+            init,
+            expr,
+            cases,
+            default,
+            ..
+        } => {
+            if let Some(init) = init {
+                register_anonymous_structs_from_stmt(init, structs, pointers, next_type_id)?;
+            }
+            if let Some(expr) = expr {
+                register_anonymous_structs_from_expr(expr, structs, pointers, next_type_id)?;
+            }
+            for case in cases {
+                for expr in &case.expressions {
+                    register_anonymous_structs_from_expr(expr, structs, pointers, next_type_id)?;
+                }
+                for stmt in &case.body {
+                    register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+                }
+            }
+            if let Some(default) = default {
+                for stmt in default {
+                    register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+                }
+            }
+            Ok(())
+        }
+        Stmt::TypeSwitch {
+            init,
+            expr,
+            cases,
+            default,
+            ..
+        } => {
+            if let Some(init) = init {
+                register_anonymous_structs_from_stmt(init, structs, pointers, next_type_id)?;
+            }
+            register_anonymous_structs_from_expr(expr, structs, pointers, next_type_id)?;
+            for case in cases {
+                for typ in &case.types {
+                    register_anonymous_structs_from_type(typ, structs, pointers, next_type_id)?;
+                }
+                for stmt in &case.body {
+                    register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+                }
+            }
+            if let Some(default) = default {
+                for stmt in default {
+                    register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+                }
+            }
+            Ok(())
+        }
+        Stmt::Select { cases, default } => {
+            for case in cases {
+                register_anonymous_structs_from_stmt(&case.stmt, structs, pointers, next_type_id)?;
+                for stmt in &case.body {
+                    register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+                }
+            }
+            if let Some(default) = default {
+                for stmt in default {
+                    register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+                }
+            }
+            Ok(())
+        }
+        Stmt::Labeled { stmt, .. } => {
+            register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)
+        }
+        Stmt::Return(values) => {
+            for value in values {
+                register_anonymous_structs_from_expr(value, structs, pointers, next_type_id)?;
+            }
+            Ok(())
+        }
+        Stmt::Increment { .. }
+        | Stmt::Decrement { .. }
+        | Stmt::Break { .. }
+        | Stmt::Continue { .. } => Ok(()),
+    }
+}
+
+fn register_anonymous_structs_from_expr(
+    expr: &Expr,
+    structs: &mut HashMap<String, StructTypeDef>,
+    pointers: &mut HashMap<String, TypeId>,
+    next_type_id: &mut u32,
+) -> Result<(), CompileError> {
+    match expr {
+        Expr::ArrayLiteral {
+            element_type,
+            elements,
+            ..
+        }
+        | Expr::SliceLiteral {
+            element_type,
+            elements,
+        } => {
+            register_anonymous_structs_from_type(element_type, structs, pointers, next_type_id)?;
+            for element in elements {
+                register_anonymous_structs_from_expr(element, structs, pointers, next_type_id)?;
+            }
+        }
+        Expr::SliceConversion { element_type, expr } => {
+            register_anonymous_structs_from_type(element_type, structs, pointers, next_type_id)?;
+            register_anonymous_structs_from_expr(expr, structs, pointers, next_type_id)?;
+        }
+        Expr::MapLiteral {
+            key_type,
+            value_type,
+            entries,
+        } => {
+            register_anonymous_structs_from_type(key_type, structs, pointers, next_type_id)?;
+            register_anonymous_structs_from_type(value_type, structs, pointers, next_type_id)?;
+            for entry in entries {
+                register_anonymous_structs_from_expr(&entry.key, structs, pointers, next_type_id)?;
+                register_anonymous_structs_from_expr(
+                    &entry.value,
+                    structs,
+                    pointers,
+                    next_type_id,
+                )?;
+            }
+        }
+        Expr::StructLiteral { type_name, fields } => {
+            register_anonymous_structs_from_type(type_name, structs, pointers, next_type_id)?;
+            for field in fields {
+                register_anonymous_structs_from_expr(
+                    &field.value,
+                    structs,
+                    pointers,
+                    next_type_id,
+                )?;
+            }
+        }
+        Expr::Unary { expr, .. }
+        | Expr::Selector { receiver: expr, .. }
+        | Expr::Spread { expr }
+        | Expr::Index { target: expr, .. } => {
+            register_anonymous_structs_from_expr(expr, structs, pointers, next_type_id)?;
+        }
+        Expr::SliceExpr { target, low, high } => {
+            register_anonymous_structs_from_expr(target, structs, pointers, next_type_id)?;
+            if let Some(low) = low {
+                register_anonymous_structs_from_expr(low, structs, pointers, next_type_id)?;
+            }
+            if let Some(high) = high {
+                register_anonymous_structs_from_expr(high, structs, pointers, next_type_id)?;
+            }
+        }
+        Expr::Binary { left, right, .. } => {
+            register_anonymous_structs_from_expr(left, structs, pointers, next_type_id)?;
+            register_anonymous_structs_from_expr(right, structs, pointers, next_type_id)?;
+        }
+        Expr::New { type_name } => {
+            register_anonymous_structs_from_type(type_name, structs, pointers, next_type_id)?;
+        }
+        Expr::Make { type_name, args } => {
+            register_anonymous_structs_from_type(type_name, structs, pointers, next_type_id)?;
+            for arg in args {
+                register_anonymous_structs_from_expr(arg, structs, pointers, next_type_id)?;
+            }
+        }
+        Expr::FunctionLiteral {
+            params,
+            result_types,
+            body,
+        } => {
+            for param in params {
+                register_anonymous_structs_from_type(&param.typ, structs, pointers, next_type_id)?;
+            }
+            for result in result_types {
+                register_anonymous_structs_from_type(result, structs, pointers, next_type_id)?;
+            }
+            for stmt in body {
+                register_anonymous_structs_from_stmt(stmt, structs, pointers, next_type_id)?;
+            }
+        }
+        Expr::Call {
+            callee,
+            type_args,
+            args,
+        } => {
+            register_anonymous_structs_from_expr(callee, structs, pointers, next_type_id)?;
+            for type_arg in type_args {
+                register_anonymous_structs_from_type(type_arg, structs, pointers, next_type_id)?;
+            }
+            for arg in args {
+                register_anonymous_structs_from_expr(arg, structs, pointers, next_type_id)?;
+            }
+        }
+        Expr::TypeAssert {
+            expr,
+            asserted_type,
+        } => {
+            register_anonymous_structs_from_expr(expr, structs, pointers, next_type_id)?;
+            register_anonymous_structs_from_type(asserted_type, structs, pointers, next_type_id)?;
+        }
+        Expr::Ident(_)
+        | Expr::NilLiteral
+        | Expr::BoolLiteral(_)
+        | Expr::IntLiteral(_)
+        | Expr::FloatLiteral(_)
+        | Expr::StringLiteral(_) => {}
+    }
+    Ok(())
+}
+
+fn register_anonymous_structs_from_type(
+    typ: &str,
+    structs: &mut HashMap<String, StructTypeDef>,
+    pointers: &mut HashMap<String, TypeId>,
+    next_type_id: &mut u32,
+) -> Result<(), CompileError> {
+    let Ok(type_repr) = parse_type_repr(typ) else {
+        return Ok(());
+    };
+    register_anonymous_structs_from_type_repr(&type_repr, structs, pointers, next_type_id)
+}
+
+fn register_anonymous_structs_from_type_repr(
+    typ: &TypeRepr,
+    structs: &mut HashMap<String, StructTypeDef>,
+    pointers: &mut HashMap<String, TypeId>,
+    next_type_id: &mut u32,
+) -> Result<(), CompileError> {
+    match typ {
+        TypeRepr::Pointer(inner)
+        | TypeRepr::Slice(inner)
+        | TypeRepr::Channel { element: inner, .. } => {
+            register_anonymous_structs_from_type_repr(inner, structs, pointers, next_type_id)
+        }
+        TypeRepr::Array { element, .. } => {
+            register_anonymous_structs_from_type_repr(element, structs, pointers, next_type_id)
+        }
+        TypeRepr::Map { key, value } => {
+            register_anonymous_structs_from_type_repr(key, structs, pointers, next_type_id)?;
+            register_anonymous_structs_from_type_repr(value, structs, pointers, next_type_id)
+        }
+        TypeRepr::Function { params, results } => {
+            for param in params {
+                register_anonymous_structs_from_type_repr(param, structs, pointers, next_type_id)?;
+            }
+            for result in results {
+                register_anonymous_structs_from_type_repr(result, structs, pointers, next_type_id)?;
+            }
+            Ok(())
+        }
+        TypeRepr::GenericInstance { type_args, .. } => {
+            for type_arg in type_args {
+                register_anonymous_structs_from_type_repr(
+                    type_arg,
+                    structs,
+                    pointers,
+                    next_type_id,
+                )?;
+            }
+            Ok(())
+        }
+        TypeRepr::Struct { fields } => {
+            for field in fields {
+                register_anonymous_structs_from_type(&field.typ, structs, pointers, next_type_id)?;
+            }
+            let canonical = typ.render();
+            if !structs.contains_key(&canonical) {
+                let struct_type_id = TypeId(*next_type_id);
+                *next_type_id += 1;
+                structs.insert(
+                    canonical.clone(),
+                    StructTypeDef {
+                        type_id: struct_type_id,
+                        fields: fields.clone(),
+                    },
+                );
+                pointers.insert(format!("*{canonical}"), TypeId(*next_type_id));
+                *next_type_id += 1;
+            }
+            Ok(())
+        }
+        TypeRepr::Name(_) | TypeRepr::Interface => Ok(()),
+    }
 }
 
 pub(crate) fn user_type_id_span(type_tables: &TypeTables) -> u32 {

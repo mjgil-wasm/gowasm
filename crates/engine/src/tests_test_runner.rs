@@ -94,7 +94,6 @@ fn package_test_request_runs_same_package_test_functions() {
         target_path: "calc.go".into(),
         filter: None,
     });
-
     match response {
         EngineResponse::TestResult {
             runner,
@@ -135,7 +134,6 @@ fn package_test_request_runs_tests_without_executing_existing_main() {
         target_path: "main.go".into(),
         filter: None,
     });
-
     match response {
         EngineResponse::TestResult {
             runner,
@@ -154,6 +152,46 @@ fn package_test_request_runs_tests_without_executing_existing_main() {
             assert_eq!(details.subject_path, "main.go");
             assert_eq!(details.planned_tests, vec!["TestExample"]);
             assert_eq!(details.completed_tests, vec!["TestExample"]);
+            assert_eq!(details.active_test, None);
+        }
+        other => panic!("unexpected response: {other:?}"),
+    }
+}
+
+#[test]
+fn package_test_request_runs_table_driven_testing_t_main_package_tests() {
+    let mut engine = Engine::new();
+    let response = engine.handle_request(EngineRequest::TestPackage {
+        files: vec![
+            workspace_file(
+                "main.go",
+                "package main\n\nimport \"fmt\"\n\nfunc Add(a, b int) int {\n\treturn a + b\n}\n\nfunc main() {\n\tresult := Add(5, 7)\n\tfmt.Printf(\"5 + 7 = %d\\n\", result)\n}\n",
+            ),
+            workspace_file(
+                "main_test.go",
+                "package main\n\nimport \"testing\"\n\nfunc TestAdd(t *testing.T) {\n\ttests := []struct {\n\t\tname string\n\t\ta int\n\t\tb int\n\t\texpected int\n\t}{\n\t\t{\"positive numbers\", 2, 3, 5},\n\t\t{\"negative numbers\", -2, -4, -6},\n\t\t{\"mixed numbers\", -1, 5, 4},\n\t\t{\"zeroes\", 0, 0, 0},\n\t}\n\n\tfor _, tc := range tests {\n\t\tt.Run(tc.name, func(t *testing.T) {\n\t\t\tresult := Add(tc.a, tc.b)\n\t\t\tif result != tc.expected {\n\t\t\t\tt.Errorf(\"Add(%d, %d) = %d; want %d\", tc.a, tc.b, result, tc.expected)\n\t\t\t}\n\t\t})\n\t}\n}\n",
+            ),
+        ],
+        target_path: "main.go".into(),
+        filter: None,
+    });
+    match response {
+        EngineResponse::TestResult {
+            runner,
+            passed,
+            stdout,
+            diagnostics,
+            details,
+        } => {
+            assert_eq!(runner, TestRunnerKind::Package);
+            assert!(passed);
+            assert!(diagnostics.is_empty());
+            assert!(stdout.contains("RUN TestAdd"));
+            assert!(stdout.contains("PASS TestAdd"));
+            assert!(stdout.contains("PASS"));
+            assert_eq!(details.subject_path, "main.go");
+            assert_eq!(details.planned_tests, vec!["TestAdd"]);
+            assert_eq!(details.completed_tests, vec!["TestAdd"]);
             assert_eq!(details.active_test, None);
         }
         other => panic!("unexpected response: {other:?}"),

@@ -51,6 +51,14 @@ python3 "$repo_root/scripts/browser_page_runner.py" \
   "$@"
 
 python3 "$repo_root/scripts/browser_page_runner.py" \
+  --page web/test-browser-shell-package-tests.html \
+  --element-id summary \
+  --expect-substring "all browser shell package-test regression tests passed" \
+  --reject-substring "failure" \
+  --timeout-seconds 180 \
+  "$@"
+
+python3 "$repo_root/scripts/browser_page_runner.py" \
   --page web/test-browser-shell-examples.html \
   --element-id summary \
   --expect-substring "all packaged browser example tests passed" \

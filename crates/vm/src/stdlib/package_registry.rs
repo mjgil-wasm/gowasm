@@ -77,6 +77,11 @@ pub(super) const STDLIB_PACKAGES: &[StdlibPackage] = &[
         constants: EMPTY_STDLIB_CONSTANTS,
     },
     StdlibPackage {
+        name: "testing",
+        functions: testing_impl::TESTING_FUNCTIONS,
+        constants: EMPTY_STDLIB_CONSTANTS,
+    },
+    StdlibPackage {
         name: "strconv",
         functions: strconv_impl::STRCONV_FUNCTIONS,
         constants: EMPTY_STDLIB_CONSTANTS,
@@ -236,6 +241,7 @@ pub(super) fn lookup_stdlib_function(
         .chain(regexp_impl::REGEXP_METHOD_FUNCTIONS.iter())
         .chain(strings_replacer_impl::STRINGS_REPLACER_METHOD_FUNCTIONS.iter())
         .chain(sync_impl::SYNC_METHOD_FUNCTIONS.iter())
+        .chain(testing_impl::TESTING_METHOD_FUNCTIONS.iter())
         .chain(time_impl::TIME_METHOD_FUNCTIONS.iter())
         .find(|entry| entry.id == function)
 }

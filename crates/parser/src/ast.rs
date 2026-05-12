@@ -72,6 +72,9 @@ pub enum TypeRepr {
         params: Vec<TypeRepr>,
         results: Vec<TypeRepr>,
     },
+    Struct {
+        fields: Vec<TypeFieldDecl>,
+    },
     Interface,
     GenericInstance {
         base: String,
@@ -104,6 +107,14 @@ impl TypeRepr {
                     .map(TypeRepr::render)
                     .collect::<Vec<_>>()
                     .join(",")
+            ),
+            Self::Struct { fields } => format!(
+                "struct{{{}}}",
+                fields
+                    .iter()
+                    .map(render_struct_type_field)
+                    .collect::<Vec<_>>()
+                    .join(";")
             ),
             Self::Interface => "interface{}".to_string(),
             Self::GenericInstance { base, type_args } => format!(
@@ -174,7 +185,7 @@ pub enum TypeDeclKind {
     },
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TypeFieldDecl {
     pub name: String,
     pub typ: String,
@@ -206,6 +217,19 @@ fn render_interface_method(method: &InterfaceMethodDecl) -> String {
 fn render_parameter(parameter: &Parameter) -> String {
     let prefix = if parameter.variadic { "..." } else { "" };
     format!("{} {}{}", parameter.name, prefix, parameter.typ)
+}
+
+fn render_struct_type_field(field: &TypeFieldDecl) -> String {
+    let mut rendered = if field.embedded {
+        field.typ.clone()
+    } else {
+        format!("{} {}", field.name, field.typ)
+    };
+    if let Some(tag) = &field.tag {
+        rendered.push(' ');
+        rendered.push_str(tag);
+    }
+    rendered
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

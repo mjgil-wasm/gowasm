@@ -206,49 +206,9 @@ def serve_repo(
     return server, thread
 
 
-def _detect_sandbox_issues(browser_binary: str) -> bool:
-    """Check if the browser binary triggers sandbox-related kernel traps.
-
-    Chrome emits SIGTRAP (int3) very early in init when the kernel blocks its
-    multi-process sandbox setup. This can happen even with --no-sandbox in
-    containerized or VM environments where namespace creation or seccomp policies
-    are further restricted.
-
-    Returns True when Chrome crashes on startup, so the caller can auto-inject
-    the full complement of sandbox-disabling flags.
-    """
-    try:
-        result = subprocess.run(
-            [browser_binary, "--headless=new", "--no-sandbox", "--disable-crash-reporter", "--version"],
-            capture_output=True,
-            timeout=15,
-        )
-        # Exit code 0 = success; any non-zero exit means Chrome couldn't start.
-        return result.returncode != 0
-    except (OSError, subprocess.TimeoutExpired):
-        # Binary not found or hung — treat as a sandbox issue.
-        return True
-
-
 def browser_arguments(
     browser_binary: str, url: str, user_data_dir: Path
 ) -> list[str]:
-    # Collect all sandbox-disabling flags in one place.
-    # --no-sandbox is required for root in a namespace-constrained environment.
-    # Additional flags are needed when kernel security (lockdown, seccomp, or
-    # apparmor policy) blocks the user-namespace creation that Chrome's
-    # multi-process sandbox depends on — this is common in containers and VMs
-    # even when running as a non-root user.
-    sandbox_args = ["--no-sandbox", "--disable-crash-reporter"]
-    if _detect_sandbox_issues(browser_binary):
-        # Kernel-level security mechanisms (lockdown, Yama, AppArmor policies,
-        # seccomp) can block Chrome's multi-process sandbox even after --no-sandbox.
-        # Disable all of them with these flags.
-        sandbox_args.extend([
-            "--disable-seccomp-filter-sandbox",
-            "--disable-setuid-sandbox",
-        ])
-
     arguments = [
         browser_binary,
         "--headless=new",
@@ -262,7 +222,10 @@ def browser_arguments(
         "--remote-debugging-port=0",
         f"--user-data-dir={user_data_dir}",
         "--window-size=1440,1200",
-    ] + sandbox_args + [url]
+        url,
+    ]
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        arguments.insert(1, "--no-sandbox")
     return arguments
 
 

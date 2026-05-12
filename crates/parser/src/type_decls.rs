@@ -1,8 +1,31 @@
 use super::*;
 
 impl Parser {
-    pub(super) fn parse_type_decl(&mut self) -> Result<TypeDecl, ParseError> {
+    pub(super) fn parse_type_decls(&mut self) -> Result<Vec<TypeDecl>, ParseError> {
         self.expect_keyword("`type`", TokenKind::Type)?;
+        if !self.check(|kind| matches!(kind, TokenKind::LParen)) {
+            return self
+                .parse_single_type_decl_after_keyword()
+                .map(|decl| vec![decl]);
+        }
+
+        self.expect_punctuation("`(`", |kind| matches!(kind, TokenKind::LParen))?;
+        let mut decls = Vec::new();
+        while !self.check(|kind| matches!(kind, TokenKind::RParen)) {
+            if self.check(|kind| matches!(kind, TokenKind::Semicolon)) {
+                self.bump();
+                continue;
+            }
+            decls.push(self.parse_single_type_decl_after_keyword()?);
+            while self.check(|kind| matches!(kind, TokenKind::Semicolon)) {
+                self.bump();
+            }
+        }
+        self.expect_punctuation("`)`", |kind| matches!(kind, TokenKind::RParen))?;
+        Ok(decls)
+    }
+
+    fn parse_single_type_decl_after_keyword(&mut self) -> Result<TypeDecl, ParseError> {
         let name = self.expect_ident()?;
         let type_params = self.parse_optional_type_params()?;
         if self.check(|kind| matches!(kind, TokenKind::Interface)) {
@@ -23,7 +46,7 @@ impl Parser {
             });
         }
         self.expect_keyword("`struct`", TokenKind::Struct)?;
-        let fields = self.parse_struct_fields("struct type declaration")?;
+        let fields = self.parse_struct_type_fields("struct type declaration")?;
         Ok(TypeDecl {
             name,
             type_params,
@@ -31,41 +54,7 @@ impl Parser {
         })
     }
 
-    fn parse_interface_type_body(
-        &mut self,
-    ) -> Result<(Vec<InterfaceMethodDecl>, Vec<String>), ParseError> {
-        self.expect_punctuation("`{`", |kind| matches!(kind, TokenKind::LBrace))?;
-        let mut methods = Vec::new();
-        let mut embeds = Vec::new();
-        while !self.check(|kind| matches!(kind, TokenKind::RBrace)) {
-            if self.check(|kind| matches!(kind, TokenKind::Eof)) {
-                return Err(ParseError::UnexpectedEof {
-                    context: "interface type declaration".into(),
-                });
-            }
-            let name = self.expect_ident()?;
-            if self.check(|kind| matches!(kind, TokenKind::LParen)) {
-                self.expect_punctuation("`(`", |kind| matches!(kind, TokenKind::LParen))?;
-                let params = self.parse_parameter_list(true)?;
-                self.expect_punctuation("`)`", |kind| matches!(kind, TokenKind::RParen))?;
-                let result_types = self.parse_result_types()?;
-                methods.push(InterfaceMethodDecl {
-                    name,
-                    params,
-                    result_types,
-                });
-            } else {
-                embeds.push(name);
-            }
-            while self.check(|kind| matches!(kind, TokenKind::Semicolon)) {
-                self.bump();
-            }
-        }
-        self.expect_punctuation("`}`", |kind| matches!(kind, TokenKind::RBrace))?;
-        Ok((methods, embeds))
-    }
-
-    pub(super) fn parse_struct_fields(
+    pub(super) fn parse_struct_type_fields(
         &mut self,
         context: &str,
     ) -> Result<Vec<TypeFieldDecl>, ParseError> {
@@ -112,5 +101,39 @@ impl Parser {
         }
         self.expect_punctuation("`}`", |kind| matches!(kind, TokenKind::RBrace))?;
         Ok(fields)
+    }
+
+    pub(super) fn parse_interface_type_body(
+        &mut self,
+    ) -> Result<(Vec<InterfaceMethodDecl>, Vec<String>), ParseError> {
+        self.expect_punctuation("`{`", |kind| matches!(kind, TokenKind::LBrace))?;
+        let mut methods = Vec::new();
+        let mut embeds = Vec::new();
+        while !self.check(|kind| matches!(kind, TokenKind::RBrace)) {
+            if self.check(|kind| matches!(kind, TokenKind::Eof)) {
+                return Err(ParseError::UnexpectedEof {
+                    context: "interface type declaration".into(),
+                });
+            }
+            let name = self.expect_ident()?;
+            if self.check(|kind| matches!(kind, TokenKind::LParen)) {
+                self.expect_punctuation("`(`", |kind| matches!(kind, TokenKind::LParen))?;
+                let params = self.parse_parameter_list(true)?;
+                self.expect_punctuation("`)`", |kind| matches!(kind, TokenKind::RParen))?;
+                let result_types = self.parse_result_types()?;
+                methods.push(InterfaceMethodDecl {
+                    name,
+                    params,
+                    result_types,
+                });
+            } else {
+                embeds.push(name);
+            }
+            while self.check(|kind| matches!(kind, TokenKind::Semicolon)) {
+                self.bump();
+            }
+        }
+        self.expect_punctuation("`}`", |kind| matches!(kind, TokenKind::RBrace))?;
+        Ok((methods, embeds))
     }
 }

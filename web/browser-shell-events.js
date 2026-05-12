@@ -3,6 +3,10 @@ export function bindBrowserShellEvents(ctx) {
     ctx.handleFileListChange(ctx.fileList.value);
   });
 
+  ctx.source.addEventListener("input", () => {
+    ctx.handleSourceInput(ctx.source.value);
+  });
+
   ctx.exampleSelect.addEventListener("change", () => {
     ctx.handleExampleSelectionChange(ctx.exampleSelect.value);
   });

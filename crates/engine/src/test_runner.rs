@@ -11,6 +11,12 @@ pub(super) struct PreparedPackageTest {
 const GENERATED_PACKAGE_TEST_RUNNER_PATH: &str = "__gowasm_package_test_runner__.go";
 const RENAMED_PACKAGE_MAIN_PREFIX: &str = "__gowasm_saved_package_main_";
 
+#[derive(Clone)]
+struct PackageTestFunction {
+    name: String,
+    needs_testing_t: bool,
+}
+
 pub(super) fn prepare_package_test(
     files: &[WorkspaceFile],
     target_path: &str,
@@ -35,8 +41,8 @@ pub(super) fn prepare_package_test(
             vec![test_runner_diagnostic(
                 target_path,
                 format!(
-                "cannot test package rooted at `{target_path}` until it parses cleanly: {error}"
-            ),
+                    "cannot test package rooted at `{target_path}` until it parses cleanly: {error}"
+                ),
             )]
         })?;
     if target_parsed.package_name.ends_with("_test") {
@@ -106,11 +112,17 @@ pub(super) fn prepare_package_test(
                 }
                 saw_filter_name = true;
             }
-            if function.receiver.is_none()
-                && function.params.is_empty()
-                && function.result_types.is_empty()
-            {
-                test_functions.push(function.name);
+            if function.receiver.is_none() && function.result_types.is_empty() {
+                let needs_testing_t =
+                    matches!(function.params.as_slice(), [param] if param.typ == "*testing.T");
+                if function.params.is_empty() || needs_testing_t {
+                    test_functions.push(PackageTestFunction {
+                        name: function.name,
+                        needs_testing_t,
+                    });
+                } else {
+                    saw_unsupported_test = true;
+                }
             } else {
                 saw_unsupported_test = true;
             }
@@ -121,7 +133,7 @@ pub(super) fn prepare_package_test(
         let message = if let Some(filter_name) = filter {
             if saw_unsupported_test && saw_filter_name {
                 format!(
-                    "package test filter `{filter_name}` matched no supported same-package top-level `Test*` function; matching tests must have no parameters, no return values, and no receiver in the current runner"
+                    "package test filter `{filter_name}` matched no supported same-package top-level `Test*` function; matching tests must have no receiver, no return values, and either no parameters or exactly one `*testing.T` parameter"
                 )
             } else {
                 format!(
@@ -129,7 +141,7 @@ pub(super) fn prepare_package_test(
                 )
             }
         } else if saw_unsupported_test {
-            "no supported same-package top-level `Test*` functions were found; test functions must have no parameters, no return values, and no receiver in the current runner"
+            "no supported same-package top-level `Test*` functions were found; test functions must have no receiver, no return values, and either no parameters or exactly one `*testing.T` parameter"
                 .into()
         } else {
             "no same-package top-level `Test*` functions were found for the current package test run"
@@ -147,7 +159,10 @@ pub(super) fn prepare_package_test(
         entry_path: runner_path,
         details: TestResultDetails {
             subject_path: target_path.into(),
-            planned_tests: test_functions,
+            planned_tests: test_functions
+                .iter()
+                .map(|test| test.name.clone())
+                .collect(),
             completed_tests: Vec::new(),
             active_test: None,
         },
@@ -214,20 +229,34 @@ fn top_level_function_name_span(function_source: &str) -> Result<(usize, usize),
     Err("did not find a function name token".into())
 }
 
-fn build_package_test_runner_source(package_name: &str, test_functions: &[String]) -> String {
+fn build_package_test_runner_source(
+    package_name: &str,
+    test_functions: &[PackageTestFunction],
+) -> String {
     let mut source = String::new();
     source.push_str("package ");
     source.push_str(package_name);
-    source.push_str("\n\nimport \"fmt\"\n\nfunc init() {\n");
-    for test_name in test_functions {
+    source.push_str("\n\nimport (\n\t\"fmt\"\n\t\"testing\"\n)\n\n");
+    source.push_str("func init() {\n");
+    for test in test_functions {
         source.push_str("\tfmt.Println(\"RUN ");
-        source.push_str(test_name);
+        source.push_str(&test.name);
         source.push_str("\")\n");
-        source.push('\t');
-        source.push_str(test_name);
-        source.push_str("()\n");
+        if test.needs_testing_t {
+            source.push_str("\tt := testing.__NewT(\"");
+            source.push_str(&test.name);
+            source.push_str("\")\n\t");
+            source.push_str(&test.name);
+            source.push_str("(t)\n\tif t.Failed() {\n\t\tpanic(\"");
+            source.push_str(&test.name);
+            source.push_str(" failed\")\n\t}\n");
+        } else {
+            source.push('\t');
+            source.push_str(&test.name);
+            source.push_str("()\n");
+        }
         source.push_str("\tfmt.Println(\"PASS ");
-        source.push_str(test_name);
+        source.push_str(&test.name);
         source.push_str("\")\n");
     }
     source.push_str("\tfmt.Println(\"PASS\")\n}\n\nfunc main() {}\n");

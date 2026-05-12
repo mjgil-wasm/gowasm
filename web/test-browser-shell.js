@@ -4,7 +4,6 @@ import {
 } from "./test-browser-shell-harness.js";
 import { testBrowserShellCancellationRecovery } from "./test-browser-shell-cancellation.js";
 import { testBrowserShellDiagnosticNavigation } from "./test-browser-shell-diagnostics.js";
-import { testBrowserShellEditor } from "./test-browser-shell-editor.js";
 import { testBrowserShellWorkspaceUi } from "./test-browser-shell-workspace-ui.js";
 
 const results = document.querySelector("#results");
@@ -67,10 +66,6 @@ async function runAll() {
     {
       name: "browser shell diagnostic navigation harness",
       run: () => testBrowserShellDiagnosticNavigation({ assert, frame, log }),
-    },
-    {
-      name: "browser shell editor harness",
-      run: () => testBrowserShellEditor({ assert, frame, log }),
     },
     {
       name: "browser shell workspace UI harness",

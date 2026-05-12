@@ -1,11 +1,716 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta http-equiv="refresh" content="0; url=./ide/index.html" />
-<title>gowasm</title>
-</head>
-<body>
-<p>Redirecting to <a href="./ide/index.html">gowasm IDE</a>...</p>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>gowasm</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --panel: #fffaf3;
+        --ink: #1f1f19;
+        --muted: #6a665c;
+        --accent: #0b5d52;
+        --accent-2: #d36c2d;
+        --line: #d8cfbf;
+        --shadow: 0 12px 40px rgba(31, 31, 25, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, rgba(211, 108, 45, 0.12), transparent 32%),
+          radial-gradient(circle at bottom right, rgba(11, 93, 82, 0.12), transparent 28%),
+          var(--bg);
+        color: var(--ink);
+        font:
+          16px/1.5 "Iosevka Aile", "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(1180px, calc(100vw - 32px));
+        margin: 32px auto;
+        display: grid;
+        gap: 16px;
+      }
+
+      .hero,
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 24px;
+      }
+
+      .hero h1 {
+        margin: 0 0 6px;
+        font:
+          700 2.2rem/1 "Iosevka Etoile", "IBM Plex Sans Condensed", sans-serif;
+        letter-spacing: -0.04em;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 72ch;
+      }
+
+      .workspace {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .workspace-shell {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: minmax(240px, 0.42fr) minmax(0, 0.58fr);
+      }
+
+      .sidebar {
+        display: grid;
+        gap: 14px;
+      }
+
+      .sidebar-section {
+        display: grid;
+        gap: 8px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .field-label,
+      .section-label {
+        font-weight: 700;
+      }
+
+      .section-label {
+        display: block;
+      }
+
+      select,
+      input,
+      textarea,
+      pre {
+        width: 100%;
+        margin: 0;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        color: var(--ink);
+        font:
+          15px/1.55 "Iosevka Term", "IBM Plex Mono", monospace;
+      }
+
+      select,
+      input,
+      textarea {
+        padding: 12px 14px;
+      }
+
+      select {
+        min-height: 220px;
+      }
+
+      textarea {
+        min-height: 420px;
+        resize: vertical;
+      }
+
+      textarea.compact {
+        min-height: 120px;
+      }
+
+      pre {
+        min-height: 420px;
+        padding: 16px;
+        overflow: auto;
+        white-space: pre-wrap;
+      }
+
+      .editor-column {
+        display: grid;
+        gap: 12px;
+      }
+
+      .editor-column textarea[readonly] {
+        background: #f7f4ee;
+      }
+
+      .inline-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .workspace-tree {
+        display: grid;
+        gap: 8px;
+        max-height: 280px;
+        overflow: auto;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      .workspace-tree-root,
+      .workspace-folder-children {
+        display: grid;
+        gap: 8px;
+      }
+
+      .workspace-folder {
+        display: grid;
+        gap: 8px;
+      }
+
+      .workspace-folder summary {
+        cursor: pointer;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .workspace-folder-children {
+        padding-left: 14px;
+      }
+
+      .workspace-file-button {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        border-radius: 14px;
+      }
+
+      .workspace-file-button-selected {
+        background: linear-gradient(135deg, var(--accent), #118a6f);
+        color: #f7f7f2;
+      }
+
+      .workspace-file-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .status-block {
+        margin: 0;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        white-space: pre-wrap;
+        font:
+          14px/1.5 "Iosevka Term", "IBM Plex Mono", monospace;
+      }
+
+      .workspace-badge {
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        padding: 2px 8px;
+        font:
+          12px/1.2 "Iosevka Term", "IBM Plex Mono", monospace;
+        text-transform: uppercase;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, var(--accent), #118a6f);
+        color: #f7f7f2;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+
+      .status,
+      .note {
+        color: var(--muted);
+      }
+
+      .source-links-panel {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 12px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .diagnostic-summary {
+        display: grid;
+        gap: 12px;
+      }
+
+      .diagnostic-card {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      .diagnostic-card-error {
+        border-color: rgba(211, 108, 45, 0.38);
+      }
+
+      .diagnostic-card-warning {
+        border-color: rgba(184, 138, 26, 0.38);
+      }
+
+      .diagnostic-card-info {
+        border-color: rgba(11, 93, 82, 0.28);
+      }
+
+      .diagnostic-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .diagnostic-card-title {
+        margin: 0;
+        font-weight: 700;
+      }
+
+      .diagnostic-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .diagnostic-badge {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 2px 8px;
+        background: #fff;
+        font:
+          12px/1.2 "Iosevka Term", "IBM Plex Mono", monospace;
+        text-transform: lowercase;
+      }
+
+      .diagnostic-badge-error {
+        border-color: rgba(211, 108, 45, 0.38);
+        color: #8d4316;
+      }
+
+      .diagnostic-badge-warning {
+        border-color: rgba(184, 138, 26, 0.38);
+        color: #735600;
+      }
+
+      .diagnostic-badge-info {
+        border-color: rgba(11, 93, 82, 0.28);
+        color: var(--accent);
+      }
+
+      .diagnostic-meta {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+      }
+
+      .diagnostic-meta div {
+        display: grid;
+        gap: 4px;
+      }
+
+      .diagnostic-meta dt {
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .diagnostic-meta dd {
+        margin: 0;
+        font:
+          14px/1.5 "Iosevka Term", "IBM Plex Mono", monospace;
+      }
+
+      .diagnostic-excerpt {
+        min-height: 0;
+        padding: 12px 14px;
+        margin: 0;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fdfaf5;
+      }
+
+      .diagnostic-stack {
+        display: grid;
+        gap: 8px;
+      }
+
+      .diagnostic-stack-list {
+        display: grid;
+        gap: 6px;
+        margin: 0;
+        padding-left: 20px;
+        font:
+          14px/1.5 "Iosevka Term", "IBM Plex Mono", monospace;
+      }
+
+      .source-links {
+        display: grid;
+        gap: 12px;
+      }
+
+      .source-link-group {
+        display: grid;
+        gap: 8px;
+      }
+
+      .source-link-heading {
+        margin: 0;
+        font-weight: 700;
+      }
+
+      .source-link-button {
+        justify-self: start;
+      }
+
+      .status {
+        font-size: 0.95rem;
+      }
+
+      .note {
+        margin: 0;
+        font-size: 0.92rem;
+        white-space: pre-line;
+      }
+
+      .accent {
+        color: var(--accent-2);
+        font-weight: 700;
+      }
+
+      code {
+        font:
+          0.95em/1.4 "Iosevka Term", "IBM Plex Mono", monospace;
+      }
+
+      @media (max-width: 980px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .workspace-shell {
+          grid-template-columns: 1fr;
+        }
+
+        select,
+        textarea,
+        pre {
+          min-height: 280px;
+        }
+
+        textarea.compact {
+          min-height: 120px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <h1>gowasm</h1>
+        <p>
+          Browser shell for the Rust-powered Go runtime. The real worker/module boundary is now
+          exposed in the shell too: edit a multi-file workspace, point the shell at package-test
+          or run-entry files, and load remote module bundles into the same virtual
+          <code>__module_cache__/...</code> view the worker harness already exercises.
+        </p>
+      </section>
+
+      <section class="workspace">
+        <article class="panel">
+          <div class="toolbar">
+            <strong id="editor-file-label">main.go</strong>
+            <div class="actions">
+              <button id="load-modules-button" class="secondary" type="button">Load Modules</button>
+              <button id="test-package-button" class="secondary" type="button">Test Package</button>
+              <button id="test-snippet-button" class="secondary" type="button">Test Snippet</button>
+              <button id="lint-button" class="secondary" type="button">Lint</button>
+              <button id="format-button" class="secondary" type="button">Format</button>
+              <button id="run-button" type="button">Run Worker Shell</button>
+              <button id="cancel-button" class="secondary" type="button" disabled>
+                Cancel Run
+              </button>
+            </div>
+          </div>
+
+          <div class="workspace-shell">
+            <aside class="sidebar">
+              <section class="sidebar-section">
+                <span class="section-label">Workspace Files</span>
+                <p id="workspace-dirty-status" class="note"></p>
+                <div id="workspace-tree" class="workspace-tree" aria-label="Workspace files"></div>
+                <p id="workspace-selection-note" class="note"></p>
+                <select id="file-list" size="9" aria-label="Workspace files" hidden></select>
+                <input
+                  id="file-path-input"
+                  type="text"
+                  placeholder="pkg/helper.go or data.txt"
+                  spellcheck="false"
+                />
+                <div class="inline-actions">
+                  <button id="add-file-button" type="button">Add File</button>
+                  <button id="remove-file-button" class="secondary" type="button">
+                    Remove Selected
+                  </button>
+                </div>
+                <input
+                  id="rename-path-input"
+                  type="text"
+                  placeholder="Rename selected file path"
+                  spellcheck="false"
+                />
+                <div class="inline-actions">
+                  <button id="rename-file-button" class="secondary" type="button">
+                    Rename Selected
+                  </button>
+                  <button id="use-selected-entry-button" class="secondary" type="button">
+                    Use As Entry
+                  </button>
+                  <button id="use-selected-package-button" class="secondary" type="button">
+                    Use As Package Target
+                  </button>
+                </div>
+              </section>
+
+              <section class="sidebar-section">
+                <span class="section-label">Project Archive Import</span>
+                <input
+                  id="archive-url-input"
+                  type="text"
+                  placeholder="https://example.invalid/project.zip or data:application/zip,..."
+                  spellcheck="false"
+                />
+                <input id="archive-file-input" type="file" accept=".zip,application/zip" hidden />
+                <div class="inline-actions">
+                  <button id="archive-import-button" class="secondary" type="button">
+                    Import ZIP File
+                  </button>
+                  <button id="archive-url-import-button" class="secondary" type="button">
+                    Import ZIP URL
+                  </button>
+                </div>
+                <p class="note">
+                  Archive import replaces the editable workspace with validated UTF-8 text files,
+                  rejects traversal paths and reserved <code>__module_cache__/...</code> entries,
+                  and strips a detected wrapper or single-module root before opening the project.
+                </p>
+              </section>
+
+              <section id="boot-url-panel" class="sidebar-section" hidden>
+                <span class="section-label">Boot URL</span>
+                <p id="boot-url-status" class="note"></p>
+                <div class="inline-actions">
+                  <button id="boot-url-load-button" class="secondary" type="button">
+                    Load Boot URL
+                  </button>
+                </div>
+                <p class="note">
+                  Boot-manifest fetches stay browser-owned. A remote manifest only auto-loads when
+                  the URL explicitly includes consent; otherwise the shell waits for this button.
+                </p>
+              </section>
+
+              <section class="sidebar-section">
+                <span class="section-label">Workspace Snapshot</span>
+                <input
+                  id="snapshot-file-input"
+                  type="file"
+                  accept=".json,application/json"
+                  hidden
+                />
+                <div class="inline-actions">
+                  <button id="snapshot-export-button" class="secondary" type="button">
+                    Export Snapshot
+                  </button>
+                  <button id="snapshot-import-button" class="secondary" type="button">
+                    Import Snapshot
+                  </button>
+                </div>
+                <p class="note">
+                  Snapshots serialize the editable workspace, configured module roots, selected
+                  targets, loaded-module references, and forward-compatible settings/example
+                  placeholders into a stable JSON file.
+                </p>
+              </section>
+
+              <section class="sidebar-section">
+                <span class="section-label">Packaged Examples</span>
+                <select
+                  id="packaged-example-select"
+                  size="6"
+                  aria-label="Packaged examples"
+                ></select>
+                <div class="inline-actions">
+                  <button id="load-example-button" class="secondary" type="button">
+                    Load Example
+                  </button>
+                </div>
+                <p id="packaged-example-summary" class="note"></p>
+              </section>
+
+              <section class="sidebar-section">
+                <span class="section-label">Browser Compatibility</span>
+                <p id="compatibility-status" class="status-block">
+                  Browser compatibility check loading…
+                </p>
+              </section>
+
+              <section class="sidebar-section">
+                <span class="section-label">Browser Cache</span>
+                <p id="cache-status" class="note">
+                  Browser cache status loading…
+                </p>
+                <div class="inline-actions">
+                  <button id="refresh-cache-button" class="secondary" type="button">
+                    Refresh Cache
+                  </button>
+                  <button id="restore-cached-workspace-button" class="secondary" type="button">
+                    Restore Cached Workspace
+                  </button>
+                </div>
+                <div class="inline-actions">
+                  <button id="clear-workspace-cache-button" class="secondary" type="button">
+                    Clear Workspace Cache
+                  </button>
+                  <button id="clear-module-cache-button" class="secondary" type="button">
+                    Clear Module Cache
+                  </button>
+                </div>
+                <div class="inline-actions">
+                  <button id="clear-all-caches-button" class="secondary" type="button">
+                    Clear All Caches
+                  </button>
+                </div>
+                <p class="note">
+                  Imported archives, boot-loaded workspaces, and snapshot restores keep one latest
+                  imported-workspace cache entry. Remote module bundles stay worker-owned in
+                  IndexedDB and this panel only reports their status and clear actions.
+                </p>
+              </section>
+
+              <section class="sidebar-section">
+                <label class="field-label" for="entry-path-input">Run / Snippet Entry</label>
+                <input
+                  id="entry-path-input"
+                  type="text"
+                  placeholder="main.go"
+                  spellcheck="false"
+                />
+                <label class="field-label" for="package-target-input">Package Test Target</label>
+                <input
+                  id="package-target-input"
+                  type="text"
+                  placeholder="calc/calc.go"
+                  spellcheck="false"
+                />
+              </section>
+
+              <section class="sidebar-section">
+                <label class="field-label" for="module-roots">Remote Module Roots</label>
+                <textarea
+                  id="module-roots"
+                  class="compact"
+                  placeholder="# module_path version fetch_url&#10;example.com/remote/tooling v1.2.3 https://example.invalid/module.json"
+                  spellcheck="false"
+                ></textarea>
+                <p class="note" id="module-status"></p>
+              </section>
+            </aside>
+
+            <div class="editor-column">
+              <textarea id="source" spellcheck="false"></textarea>
+              <p class="note">
+                <span class="accent">Run and test requests automatically combine the editable
+                workspace with any loaded remote module bundles.</span> Format and lint stay scoped
+                to the editable workspace files so cached remote sources remain host-owned:
+                <code>__module_cache__/...</code> paths are reserved for projected bundles, and
+                failed reloads leave prior bundles marked stale until the next successful refresh.
+                Package tests still target same-package top-level <code>Test*</code> functions;
+                package <code>main</code> is now supported through the generated runner, while
+                external <code>_test</code> packages remain out of scope.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="toolbar">
+            <strong>Output</strong>
+            <span class="status" id="status">Booting worker…</span>
+          </div>
+          <section id="diagnostic-summary-panel" class="source-links-panel" hidden>
+            <strong>Issue Summary</strong>
+            <p class="note">
+              Structured browser rendering of compile, runtime, worker, and shell-side issues.
+              The raw output stays visible below unchanged.
+            </p>
+            <div id="diagnostic-summary" class="diagnostic-summary"></div>
+          </section>
+          <section id="source-links-panel" class="source-links-panel" hidden>
+            <strong>Source Locations</strong>
+            <p class="note">
+              Click a diagnostic or runtime frame to jump the editor. Projected
+              <code>__module_cache__/...</code> files open read-only.
+            </p>
+            <div id="source-links" class="source-links"></div>
+          </section>
+          <pre id="output"></pre>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="./main.js"></script>
+  </body>
 </html>

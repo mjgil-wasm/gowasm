@@ -91,14 +91,14 @@ func main() {
     await waitFor(
       () =>
         control(doc, "editor-file-label").textContent.includes("__module_cache__/")
-          && editorIsReadOnly(doc)
+          && control(doc, "source").readOnly
           && selectedText(doc).includes("1 / value"),
       "runtime frame jump into projected source",
       doc,
     );
     assert(
       control(doc, "editor-file-label").textContent.includes("__module_cache__/")
-        && editorIsReadOnly(doc)
+        && control(doc, "source").readOnly
         && selectedText(doc).includes("1 / value"),
       "browser shell jumps runtime stack frames into projected read-only module sources",
       shellSnapshot(doc),
@@ -121,15 +121,8 @@ function findSourceLinkButton(doc, text) {
 }
 
 function selectedText(doc) {
-  const view = doc.defaultView._codeEditorView;
-  if (!view) return "";
-  const { from, to } = view.state.selection.main;
-  return view.state.doc.sliceString(from, to);
-}
-
-function editorIsReadOnly(doc) {
-  const content = doc.querySelector("#editor .cm-content");
-  return content ? content.contentEditable === "false" : false;
+  const textarea = control(doc, "source");
+  return textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
 }
 
 function moduleRootLine(modulePath, version, fetchUrl) {

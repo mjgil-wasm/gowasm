@@ -530,3 +530,7 @@ const REFLECT_TYPE_NUM_OUT: StdlibFunctionId = StdlibFunctionId(504);
 const REFLECT_TYPE_OUT: StdlibFunctionId = StdlibFunctionId(505);
 const REFLECT_VALUE_CAN_INTERFACE: StdlibFunctionId = StdlibFunctionId(506);
 const REFLECT_VALUE_NUM_FIELD: StdlibFunctionId = StdlibFunctionId(507);
+const TESTING_NEW_T: StdlibFunctionId = StdlibFunctionId(700);
+const TESTING_T_ERRORF: StdlibFunctionId = StdlibFunctionId(701);
+const TESTING_T_RUN: StdlibFunctionId = StdlibFunctionId(702);
+const TESTING_T_FAILED: StdlibFunctionId = StdlibFunctionId(703);

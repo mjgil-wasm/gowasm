@@ -1,6 +1,6 @@
 use super::{
     base64_impl, context_impl, io_fs_registry_impl, net_http_impl, net_url_impl, reflect_impl,
-    regexp_impl, strings_replacer_impl, sync_impl, time_impl, StdlibFunctionId,
+    regexp_impl, strings_replacer_impl, sync_impl, testing_impl, time_impl, StdlibFunctionId,
 };
 use crate::{
     TypeId, TYPE_BASE64_ENCODING_PTR, TYPE_CONTEXT, TYPE_FS_DIR_ENTRY, TYPE_FS_FILE,
@@ -8,8 +8,9 @@ use crate::{
     TYPE_HTTP_REQUEST_BODY, TYPE_HTTP_REQUEST_PTR, TYPE_HTTP_RESPONSE_BODY, TYPE_OS_DIR_FS,
     TYPE_REFLECT_KIND, TYPE_REFLECT_RTYPE, TYPE_REFLECT_RVALUE, TYPE_REFLECT_STRUCT_TAG,
     TYPE_REGEXP, TYPE_STRINGS_REPLACER, TYPE_SYNC_MUTEX_PTR, TYPE_SYNC_ONCE_PTR,
-    TYPE_SYNC_RW_MUTEX_PTR, TYPE_SYNC_WAIT_GROUP_PTR, TYPE_TIME, TYPE_TIME_DURATION, TYPE_TIME_PTR,
-    TYPE_TIME_TIMER_PTR, TYPE_URL, TYPE_URL_PTR, TYPE_URL_USERINFO_PTR, TYPE_URL_VALUES,
+    TYPE_SYNC_RW_MUTEX_PTR, TYPE_SYNC_WAIT_GROUP_PTR, TYPE_TESTING_T_PTR, TYPE_TIME,
+    TYPE_TIME_DURATION, TYPE_TIME_PTR, TYPE_TIME_TIMER_PTR, TYPE_URL, TYPE_URL_PTR,
+    TYPE_URL_USERINFO_PTR, TYPE_URL_VALUES,
 };
 
 pub fn resolve_stdlib_method(receiver_type: &str, method: &str) -> Option<StdlibFunctionId> {
@@ -27,6 +28,7 @@ pub fn resolve_stdlib_method(receiver_type: &str, method: &str) -> Option<Stdlib
         .chain(reflect_impl::REFLECT_METHODS.iter())
         .chain(strings_replacer_impl::STRINGS_REPLACER_METHODS.iter())
         .chain(sync_impl::SYNC_METHODS.iter())
+        .chain(testing_impl::TESTING_METHODS.iter())
         .chain(time_impl::TIME_METHODS.iter())
         .find(|entry| entry.receiver_type == receiver_type && entry.method == method)
         .map(|entry| entry.function)
@@ -66,6 +68,7 @@ fn runtime_stdlib_receiver_types(receiver_type: TypeId) -> &'static [&'static st
         TYPE_SYNC_ONCE_PTR => &["*sync.Once"],
         TYPE_SYNC_MUTEX_PTR => &["*sync.Mutex"],
         TYPE_SYNC_RW_MUTEX_PTR => &["*sync.RWMutex"],
+        TYPE_TESTING_T_PTR => &["*testing.T"],
         TYPE_TIME => &["time.Time"],
         TYPE_TIME_PTR => &["time.Time"],
         TYPE_TIME_TIMER_PTR => &["*time.Timer"],

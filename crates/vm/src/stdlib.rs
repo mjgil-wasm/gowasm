@@ -94,6 +94,8 @@ mod strings_impl;
 mod strings_replacer_impl;
 #[path = "stdlib/sync.rs"]
 mod sync_impl;
+#[path = "stdlib/testing.rs"]
+mod testing_impl;
 #[cfg(test)]
 #[path = "stdlib/tests.rs"]
 mod tests;

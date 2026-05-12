@@ -101,6 +101,7 @@ impl From<TypeRepr> for TypeKey {
                 params: params.into_iter().map(Self::from).collect(),
                 results: results.into_iter().map(Self::from).collect(),
             },
+            TypeRepr::Struct { fields } => Self::Name(TypeRepr::Struct { fields }.render()),
             TypeRepr::Interface => Self::Interface,
             TypeRepr::GenericInstance { base, type_args } => Self::GenericInstance {
                 base,

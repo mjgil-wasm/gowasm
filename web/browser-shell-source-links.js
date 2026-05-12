@@ -15,6 +15,18 @@ export function collectDiagnosticSourceSections(diagnostics, files) {
   return sections;
 }
 
+export function applyEditorSelection(textarea, fileContents, target) {
+  const selection = selectionOffsetsForTarget(fileContents, target);
+  if (!selection) {
+    return false;
+  }
+
+  textarea.focus();
+  textarea.setSelectionRange(selection.start, selection.end);
+  textarea.scrollTop = approximateScrollTop(fileContents, selection.start);
+  return true;
+}
+
 export function renderDiagnosticSourcePanel(ctx) {
   const sections = collectDiagnosticSourceSections(ctx.diagnostics, ctx.files);
   ctx.linksElement.replaceChildren();
@@ -189,7 +201,7 @@ function diagnosticHeading(diagnostic, diagnosticIndex) {
   return firstLine;
 }
 
-export function selectionOffsetsForTarget(source, target) {
+function selectionOffsetsForTarget(source, target) {
   const start = byteOffsetForLineColumn(source, target.startLine, target.startColumn);
   const end = byteOffsetForLineColumn(source, target.endLine, target.endColumn);
   if (start === null || end === null) {

@@ -28,15 +28,17 @@ impl Parser {
 
         if self.check(|kind| matches!(kind, TokenKind::Interface)) {
             self.bump();
-            self.expect_punctuation("`{`", |kind| matches!(kind, TokenKind::LBrace))?;
-            self.expect_punctuation("`}`", |kind| matches!(kind, TokenKind::RBrace))?;
-            return Ok(TypeRepr::Interface);
+            let (methods, embeds) = self.parse_interface_type_body()?;
+            if methods.is_empty() && embeds.is_empty() {
+                return Ok(TypeRepr::Interface);
+            }
+            return Ok(TypeRepr::Name(render_interface_literal(&methods, &embeds)));
         }
 
         if self.check(|kind| matches!(kind, TokenKind::Struct)) {
             self.bump();
-            let fields = self.parse_struct_fields("anonymous struct type")?;
-            return Ok(TypeRepr::Name(render_struct_type_name(&fields)));
+            let fields = self.parse_struct_type_fields("anonymous struct type")?;
+            return Ok(TypeRepr::Struct { fields });
         }
 
         if self.check(|kind| matches!(kind, TokenKind::Star)) {
@@ -133,7 +135,19 @@ impl Parser {
     fn parse_function_type_repr(&mut self) -> Result<TypeRepr, ParseError> {
         self.expect_keyword("`func`", TokenKind::Func)?;
         self.expect_punctuation("`(`", |kind| matches!(kind, TokenKind::LParen))?;
-        let params = self.parse_type_repr_list(TokenKind::RParen)?;
+        let params = self
+            .parse_parameter_list(true)?
+            .into_iter()
+            .map(|param| {
+                if param.variadic {
+                    TypeRepr::Slice(Box::new(
+                        parse_type_repr(&param.typ[2..]).expect("canonical variadic type"),
+                    ))
+                } else {
+                    parse_type_repr(&param.typ).expect("canonical parameter type")
+                }
+            })
+            .collect();
         self.expect_punctuation("`)`", |kind| matches!(kind, TokenKind::RParen))?;
         let results = self.parse_function_type_results_repr()?;
         Ok(TypeRepr::Function { params, results })
@@ -175,28 +189,26 @@ impl Parser {
     }
 }
 
-fn render_struct_type_name(fields: &[TypeFieldDecl]) -> String {
-    if fields.is_empty() {
-        return "struct{}".into();
-    }
+fn render_interface_literal(methods: &[InterfaceMethodDecl], embeds: &[String]) -> String {
+    let mut members = Vec::new();
+    members.extend(methods.iter().map(render_interface_method_decl));
+    members.extend(embeds.iter().cloned());
+    format!("interface{{{}}}", members.join(";"))
+}
 
-    let fields = fields
+fn render_interface_method_decl(method: &InterfaceMethodDecl) -> String {
+    let params = method
+        .params
         .iter()
-        .map(|field| {
-            let mut rendered = if field.embedded {
-                field.typ.clone()
-            } else {
-                format!("{} {}", field.name, field.typ)
-            };
-            if let Some(tag) = &field.tag {
-                rendered.push(' ');
-                rendered.push('`');
-                rendered.push_str(tag);
-                rendered.push('`');
-            }
-            rendered
+        .map(|param| {
+            let prefix = if param.variadic { "..." } else { "" };
+            format!("{} {}{}", param.name, prefix, param.typ)
         })
         .collect::<Vec<_>>()
-        .join(";");
-    format!("struct{{{fields}}}")
+        .join(",");
+    match method.result_types.as_slice() {
+        [] => format!("{}({params})", method.name),
+        [result] => format!("{}({params}) {result}", method.name),
+        results => format!("{}({params}) ({})", method.name, results.join(",")),
+    }
 }

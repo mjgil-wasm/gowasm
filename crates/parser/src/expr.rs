@@ -5,7 +5,7 @@ mod operators;
 
 impl Parser {
     pub(super) fn parse_expr(&mut self) -> Result<Expr, ParseError> {
-        self.parse_or_expr()
+        self.parse_expr_with_hint(None)
     }
 
     pub(super) fn parse_callable_expr(&mut self) -> Result<Expr, ParseError> {
@@ -30,11 +30,21 @@ impl Parser {
         }
     }
 
-    fn parse_or_expr(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.parse_and_expr()?;
+    fn parse_expr_with_hint(
+        &mut self,
+        literal_type_hint: Option<&str>,
+    ) -> Result<Expr, ParseError> {
+        self.parse_or_expr_with_hint(literal_type_hint)
+    }
+
+    fn parse_or_expr_with_hint(
+        &mut self,
+        literal_type_hint: Option<&str>,
+    ) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_and_expr_with_hint(literal_type_hint)?;
         while self.check(|kind| matches!(kind, TokenKind::OrOr)) {
             self.bump();
-            let right = self.parse_and_expr()?;
+            let right = self.parse_and_expr_with_hint(None)?;
             expr = Expr::Binary {
                 left: Box::new(expr),
                 op: BinaryOp::Or,
@@ -44,11 +54,14 @@ impl Parser {
         Ok(expr)
     }
 
-    fn parse_and_expr(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.parse_comparison_expr()?;
+    fn parse_and_expr_with_hint(
+        &mut self,
+        literal_type_hint: Option<&str>,
+    ) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_comparison_expr_with_hint(literal_type_hint)?;
         while self.check(|kind| matches!(kind, TokenKind::AndAnd)) {
             self.bump();
-            let right = self.parse_comparison_expr()?;
+            let right = self.parse_comparison_expr_with_hint(None)?;
             expr = Expr::Binary {
                 left: Box::new(expr),
                 op: BinaryOp::And,
@@ -58,10 +71,13 @@ impl Parser {
         Ok(expr)
     }
 
-    fn parse_comparison_expr(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.parse_add_expr()?;
+    fn parse_comparison_expr_with_hint(
+        &mut self,
+        literal_type_hint: Option<&str>,
+    ) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_add_expr_with_hint(literal_type_hint)?;
         while let Some(op) = self.parse_comparison_op() {
-            let right = self.parse_add_expr()?;
+            let right = self.parse_add_expr_with_hint(None)?;
             expr = Expr::Binary {
                 left: Box::new(expr),
                 op,
@@ -71,10 +87,13 @@ impl Parser {
         Ok(expr)
     }
 
-    fn parse_add_expr(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.parse_multiply_expr()?;
+    fn parse_add_expr_with_hint(
+        &mut self,
+        literal_type_hint: Option<&str>,
+    ) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_multiply_expr_with_hint(literal_type_hint)?;
         while let Some(op) = self.parse_add_op() {
-            let right = self.parse_multiply_expr()?;
+            let right = self.parse_multiply_expr_with_hint(None)?;
             expr = Expr::Binary {
                 left: Box::new(expr),
                 op,
@@ -84,10 +103,13 @@ impl Parser {
         Ok(expr)
     }
 
-    fn parse_multiply_expr(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.parse_unary_expr()?;
+    fn parse_multiply_expr_with_hint(
+        &mut self,
+        literal_type_hint: Option<&str>,
+    ) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_unary_expr_with_hint(literal_type_hint)?;
         while let Some(op) = self.parse_multiply_op() {
-            let right = self.parse_unary_expr()?;
+            let right = self.parse_unary_expr_with_hint(None)?;
             expr = Expr::Binary {
                 left: Box::new(expr),
                 op,
@@ -97,12 +119,15 @@ impl Parser {
         Ok(expr)
     }
 
-    fn parse_unary_expr(&mut self) -> Result<Expr, ParseError> {
+    fn parse_unary_expr_with_hint(
+        &mut self,
+        literal_type_hint: Option<&str>,
+    ) -> Result<Expr, ParseError> {
         if self.check(|kind| matches!(kind, TokenKind::Bang)) {
             self.bump();
             return Ok(Expr::Unary {
                 op: UnaryOp::Not,
-                expr: Box::new(self.parse_unary_expr()?),
+                expr: Box::new(self.parse_unary_expr_with_hint(None)?),
             });
         }
 
@@ -110,7 +135,7 @@ impl Parser {
             self.bump();
             return Ok(Expr::Unary {
                 op: UnaryOp::Negate,
-                expr: Box::new(self.parse_unary_expr()?),
+                expr: Box::new(self.parse_unary_expr_with_hint(None)?),
             });
         }
 
@@ -118,7 +143,7 @@ impl Parser {
             self.bump();
             return Ok(Expr::Unary {
                 op: UnaryOp::BitNot,
-                expr: Box::new(self.parse_unary_expr()?),
+                expr: Box::new(self.parse_unary_expr_with_hint(None)?),
             });
         }
 
@@ -126,7 +151,7 @@ impl Parser {
             self.bump();
             return Ok(Expr::Unary {
                 op: UnaryOp::AddressOf,
-                expr: Box::new(self.parse_unary_expr()?),
+                expr: Box::new(self.parse_unary_expr_with_hint(None)?),
             });
         }
 
@@ -134,7 +159,7 @@ impl Parser {
             self.bump();
             return Ok(Expr::Unary {
                 op: UnaryOp::Deref,
-                expr: Box::new(self.parse_unary_expr()?),
+                expr: Box::new(self.parse_unary_expr_with_hint(None)?),
             });
         }
 
@@ -142,15 +167,18 @@ impl Parser {
             self.bump();
             return Ok(Expr::Unary {
                 op: UnaryOp::Receive,
-                expr: Box::new(self.parse_unary_expr()?),
+                expr: Box::new(self.parse_unary_expr_with_hint(None)?),
             });
         }
 
-        self.parse_postfix_expr()
+        self.parse_postfix_expr_with_hint(literal_type_hint)
     }
 
-    fn parse_postfix_expr(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.parse_primary()?;
+    fn parse_postfix_expr_with_hint(
+        &mut self,
+        literal_type_hint: Option<&str>,
+    ) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_primary_with_hint(literal_type_hint)?;
         loop {
             if matches!(expr, Expr::Ident(_) | Expr::Selector { .. })
                 && self.check(|kind| matches!(kind, TokenKind::LBracket))
@@ -424,9 +452,21 @@ impl Parser {
         Ok(args)
     }
 
-    fn parse_primary(&mut self) -> Result<Expr, ParseError> {
+    fn parse_primary_with_hint(
+        &mut self,
+        literal_type_hint: Option<&str>,
+    ) -> Result<Expr, ParseError> {
         let token = self.current_token()?;
         match &token.kind {
+            TokenKind::LBrace => {
+                if let Some(type_name) = literal_type_hint {
+                    return self.parse_struct_literal(type_name.to_string());
+                }
+                Err(ParseError::UnexpectedToken {
+                    expected: "expression".into(),
+                    found: describe_token(&token.kind),
+                })
+            }
             TokenKind::Ident(name) => {
                 let name = name.clone();
                 self.bump();
@@ -464,7 +504,7 @@ impl Parser {
             }
             TokenKind::LParen => {
                 self.bump();
-                let expr = self.parse_expr()?;
+                let expr = self.parse_expr_with_hint(None)?;
                 self.expect_punctuation("`)`", |kind| matches!(kind, TokenKind::RParen))?;
                 Ok(expr)
             }
@@ -499,6 +539,7 @@ impl Parser {
             self.bump();
             return Ok(Expr::StructLiteral { type_name, fields });
         }
+        let field_type_hints = struct_field_type_hints(&type_name);
 
         let positional = !self.check(|kind| matches!(kind, TokenKind::Ident(_)))
             || !matches!(
@@ -508,16 +549,27 @@ impl Parser {
 
         loop {
             if positional {
+                let field_index = fields.len();
                 fields.push(StructLiteralField {
                     name: String::new(),
-                    value: self.parse_expr()?,
+                    value: self.parse_expr_with_hint(
+                        field_type_hints
+                            .as_ref()
+                            .and_then(|hints| hints.get(field_index).map(|(_, typ)| typ.as_str())),
+                    )?,
                 });
             } else {
+                let field_name = self.expect_ident()?;
                 fields.push(StructLiteralField {
-                    name: self.expect_ident()?,
+                    name: field_name.clone(),
                     value: {
                         self.expect_punctuation("`:`", |kind| matches!(kind, TokenKind::Colon))?;
-                        self.parse_expr()?
+                        self.parse_expr_with_hint(field_type_hints.as_ref().and_then(|hints| {
+                            hints
+                                .iter()
+                                .find(|(name, _)| name == &field_name)
+                                .map(|(_, typ)| typ.as_str())
+                        }))?
                     },
                 });
             }
@@ -565,14 +617,14 @@ impl Parser {
             let element_type = self.parse_type_name()?;
             if self.check(|kind| matches!(kind, TokenKind::LParen)) {
                 self.bump();
-                let expr = self.parse_expr()?;
+                let expr = self.parse_expr_with_hint(None)?;
                 self.expect_punctuation("`)`", |kind| matches!(kind, TokenKind::RParen))?;
                 return Ok(Expr::SliceConversion {
                     element_type,
                     expr: Box::new(expr),
                 });
             }
-            let elements = self.parse_collection_elements(Some(&element_type))?;
+            let elements = self.parse_collection_elements(&element_type)?;
             return Ok(Expr::SliceLiteral {
                 element_type,
                 elements,
@@ -594,7 +646,7 @@ impl Parser {
         };
         self.expect_punctuation("`]`", |kind| matches!(kind, TokenKind::RBracket))?;
         let element_type = self.parse_type_name()?;
-        let elements = self.parse_collection_elements(Some(&element_type))?;
+        let elements = self.parse_collection_elements(&element_type)?;
         Ok(Expr::ArrayLiteral {
             len,
             element_type,
@@ -602,7 +654,7 @@ impl Parser {
         })
     }
 
-    fn parse_collection_elements(&mut self, element_type: Option<&str>) -> Result<Vec<Expr>, ParseError> {
+    fn parse_collection_elements(&mut self, element_type: &str) -> Result<Vec<Expr>, ParseError> {
         self.expect_punctuation("`{`", |kind| matches!(kind, TokenKind::LBrace))?;
         let mut elements = Vec::new();
         if self.check(|kind| matches!(kind, TokenKind::RBrace)) {
@@ -611,15 +663,7 @@ impl Parser {
         }
 
         loop {
-            if self.check(|kind| matches!(kind, TokenKind::LBrace))
-                && element_type.is_some_and(|typ| typ.starts_with("struct{"))
-            {
-                elements.push(self.parse_struct_literal(
-                    element_type.expect("checked above").to_string(),
-                )?);
-            } else {
-                elements.push(self.parse_expr()?);
-            }
+            elements.push(self.parse_expr_with_hint(Some(element_type))?);
             if !self.check(|kind| matches!(kind, TokenKind::Comma)) {
                 break;
             }
@@ -654,9 +698,9 @@ impl Parser {
         }
 
         loop {
-            let key = self.parse_expr()?;
+            let key = self.parse_expr_with_hint(Some(key_type))?;
             self.expect_punctuation("`:`", |kind| matches!(kind, TokenKind::Colon))?;
-            let value = self.parse_expr()?;
+            let value = self.parse_expr_with_hint(Some(value_type))?;
             entries.push(MapLiteralEntry { key, value });
             if !self.check(|kind| matches!(kind, TokenKind::Comma)) {
                 break;
@@ -674,6 +718,19 @@ impl Parser {
             entries,
         })
     }
+}
+
+fn struct_field_type_hints(type_name: &str) -> Option<Vec<(String, String)>> {
+    let typ = parse_type_repr(type_name).ok()?;
+    let TypeRepr::Struct { fields } = typ else {
+        return None;
+    };
+    Some(
+        fields
+            .into_iter()
+            .map(|field| (field.name, field.typ))
+            .collect(),
+    )
 }
 
 fn split_map_type_name(map_type: &str) -> Option<(&str, &str)> {

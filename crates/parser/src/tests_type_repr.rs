@@ -85,7 +85,17 @@ fn parses_anonymous_empty_struct_type_repr() {
         TypeRepr::Channel {
             direction: TypeChannelDirection::Bidirectional,
             element,
-        } => assert!(matches!(&*element, TypeRepr::Name(name) if name == "struct{}")),
+        } => assert!(matches!(&*element, TypeRepr::Struct { fields } if fields.is_empty())),
         other => panic!("expected channel type, got {other:?}"),
     }
+}
+
+#[test]
+fn parses_anonymous_struct_function_parameter_type_repr() {
+    let typ = parse_type_repr("func(t *testing.T, row struct{name string; expected int})")
+        .expect("type should parse");
+    assert_eq!(
+        typ.render(),
+        "__gowasm_func__(*testing.T,struct{name string;expected int})->()"
+    );
 }

@@ -1,5 +1,8 @@
 import { normalizeWorkspacePath } from "./browser-workspace.js";
-import { renderDiagnosticSourcePanel } from "./browser-shell-source-links.js";
+import {
+  applyEditorSelection,
+  renderDiagnosticSourcePanel,
+} from "./browser-shell-source-links.js";
 
 export function createBrowserShellDiagnosticUi({
   diagnosticSummaryElement,
@@ -9,7 +12,7 @@ export function createBrowserShellDiagnosticUi({
   outputElement,
   renderWorkspace,
   setSelectedFilePath,
-  applyEditorSelection,
+  sourceElement,
   sourceLinksPanelElement,
   statusElement,
 }) {
@@ -31,7 +34,7 @@ export function createBrowserShellDiagnosticUi({
             getDisplayFiles,
             renderWorkspace,
             setSelectedFilePath,
-            applyEditorSelection,
+            sourceElement,
             statusElement,
           });
         },
@@ -286,7 +289,7 @@ function formatSourceExcerptBlock(excerpt) {
 
 function jumpToSourceLink(
   link,
-  { getDisplayFiles, renderWorkspace, setSelectedFilePath, applyEditorSelection, statusElement },
+  { getDisplayFiles, renderWorkspace, setSelectedFilePath, sourceElement, statusElement },
 ) {
   const targetPath = normalizeWorkspacePath(link.path);
   if (!targetPath) {
@@ -302,7 +305,7 @@ function jumpToSourceLink(
     return;
   }
 
-  applyEditorSelection(selected.contents, link);
+  applyEditorSelection(sourceElement, selected.contents, link);
   statusElement.textContent = `Jumped to ${link.path}:${link.startLine}:${link.startColumn}`;
 }
 

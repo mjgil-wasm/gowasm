@@ -102,7 +102,7 @@ impl Parser {
                 continue;
             }
             if self.check(|kind| matches!(kind, TokenKind::Type)) {
-                types.push(self.parse_type_decl()?);
+                types.extend(self.parse_type_decls()?);
                 continue;
             }
 
@@ -801,3 +801,5 @@ mod tests_structs;
 mod tests_type_repr;
 #[cfg(test)]
 mod tests_unwind;
+#[cfg(test)]
+mod tests_upstream;

@@ -4,7 +4,7 @@ use gowasm_parser::{InterfaceMethodDecl, Parameter, TypeFieldDecl};
 use gowasm_vm::{
     TypeId, TYPE_BASE64_ENCODING, TYPE_EMPTY_STRUCT, TYPE_HTTP_CLIENT, TYPE_HTTP_REQUEST,
     TYPE_HTTP_RESPONSE, TYPE_REGEXP, TYPE_STRINGS_REPLACER, TYPE_SYNC_MUTEX, TYPE_SYNC_ONCE,
-    TYPE_SYNC_RW_MUTEX, TYPE_SYNC_WAIT_GROUP, TYPE_TIME, TYPE_TIME_TIMER, TYPE_URL,
+    TYPE_SYNC_RW_MUTEX, TYPE_SYNC_WAIT_GROUP, TYPE_TESTING_T, TYPE_TIME, TYPE_TIME_TIMER, TYPE_URL,
     TYPE_URL_USERINFO,
 };
 
@@ -21,6 +21,26 @@ pub(crate) fn is_imported_type_only_package(path: &str) -> bool {
 
 pub(super) fn seed_imported_structs(structs: &mut HashMap<String, StructTypeDef>) {
     structs.extend([
+        (
+            "testing.T".into(),
+            StructTypeDef {
+                type_id: TYPE_TESTING_T,
+                fields: vec![
+                    TypeFieldDecl {
+                        name: "__testing_name".into(),
+                        typ: "string".into(),
+                        embedded: false,
+                        tag: None,
+                    },
+                    TypeFieldDecl {
+                        name: "__testing_failed".into(),
+                        typ: "bool".into(),
+                        embedded: false,
+                        tag: None,
+                    },
+                ],
+            },
+        ),
         (
             "base64.Encoding".into(),
             StructTypeDef {

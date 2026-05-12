@@ -3,194 +3,178 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>gowasm — Go to WASM Demo</title>
+    <title>gowasm</title>
     <style>
       :root {
-        --bg: #1a1a2e;
-        --panel: #16162a;
-        --ink: #e0e0e0;
-        --muted: #888;
-        --accent: #0077aa;
-        --accent-hover: #0099cc;
-        --line: #333;
-        --subline: #2a2a3e;
+        --bg: #f4efe7;
+        --panel: #fffaf3;
+        --ink: #1f1f19;
+        --muted: #6a665c;
+        --accent: #0b5d52;
+        --accent-2: #d36c2d;
+        --line: #d8cfbf;
+        --shadow: 0 12px 40px rgba(31, 31, 25, 0.08);
       }
 
-      *,
-      *::before,
-      *::after {
+      * {
         box-sizing: border-box;
       }
 
       body {
         margin: 0;
-        font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
-        background: var(--bg);
-        color: var(--ink);
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      header {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--line);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      header h1 {
-        margin: 0;
-        font-size: 1rem;
-        color: #a0e0ff;
-      }
-
-      header p {
-        margin: 0;
-        font-size: 0.75rem;
-        color: var(--muted);
+        background:
+          radial-gradient(circle at top left, rgba(211, 108, 45, 0.12), transparent 32%),
+          radial-gradient(circle at bottom right, rgba(11, 93, 82, 0.12), transparent 28%),
+          var(--bg);
+        color: var(--ink);
+        font:
+          16px/1.5 "Iosevka Aile", "IBM Plex Sans", "Segoe UI", sans-serif;
       }
 
       main {
-        flex: 1;
+        width: min(1100px, calc(100vw - 32px));
+        margin: 32px auto;
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0;
+        gap: 16px;
       }
 
-      @media (max-width: 768px) {
-        main {
-          grid-template-columns: 1fr;
-        }
+      .hero,
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 24px;
+      }
+
+      .hero h1 {
+        margin: 0 0 6px;
+        font:
+          700 2.2rem/1 "Iosevka Etoile", "IBM Plex Sans Condensed", sans-serif;
+        letter-spacing: -0.04em;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 68ch;
+      }
+
+      .workspace {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
       }
 
       .panel {
-        display: flex;
-        flex-direction: column;
-        border-right: 1px solid var(--line);
+        padding: 18px;
       }
 
-      .panel:last-child {
-        border-right: none;
-      }
-
-      .panel-header {
-        padding: 0.5rem 1rem;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--muted);
-        border-bottom: 1px solid var(--subline);
-        background: var(--panel);
+      textarea,
+      pre {
+        width: 100%;
+        min-height: 360px;
+        margin: 0;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        color: var(--ink);
+        font:
+          15px/1.55 "Iosevka Term", "IBM Plex Mono", monospace;
       }
 
       textarea {
-        flex: 1;
-        background: #0f0f1e;
-        color: #d0d0e0;
-        border: none;
-        padding: 1rem;
-        font-family: inherit;
-        font-size: 0.85rem;
-        line-height: 1.6;
-        resize: none;
-        outline: none;
+        padding: 16px;
+        resize: vertical;
       }
 
-      textarea::placeholder {
-        color: #555;
-      }
-
-      .output {
-        flex: 1;
-        padding: 1rem;
-        font-size: 0.8rem;
-        overflow-y: auto;
-        background: #0f0f1e;
+      pre {
+        padding: 16px;
+        overflow: auto;
         white-space: pre-wrap;
-        word-break: break-all;
       }
 
       .toolbar {
-        padding: 0.75rem 1rem;
-        border-top: 1px solid var(--subline);
-        background: var(--panel);
         display: flex;
-        gap: 0.75rem;
         align-items: center;
-        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
       }
 
       button {
-        padding: 0.5rem 1.25rem;
-        background: var(--accent);
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        font-family: inherit;
-        font-size: 0.85rem;
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, var(--accent), #118a6f);
+        color: #f7f7f2;
+        font: inherit;
+        font-weight: 600;
         cursor: pointer;
-        transition: background 0.15s;
       }
 
-      button:hover {
-        background: var(--accent-hover);
-      }
-
-      button.secondary {
-        background: transparent;
-        border: 1px solid var(--line);
+      .status {
         color: var(--muted);
+        font-size: 0.95rem;
       }
 
-      button.secondary:hover {
-        border-color: var(--muted);
-        color: var(--ink);
-      }
-
-      button:disabled {
-        opacity: 0.5;
-        cursor: default;
-      }
-
-      #status {
-        margin-left: auto;
-        font-size: 0.8rem;
+      .note {
+        margin-top: 12px;
         color: var(--muted);
+        font-size: 0.92rem;
       }
 
-      #status.ok {
-        color: #66ff99;
+      .accent {
+        color: var(--accent-2);
+        font-weight: 700;
       }
 
-      #status.error {
-        color: #ff6666;
+      @media (max-width: 880px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        textarea,
+        pre {
+          min-height: 280px;
+        }
       }
     </style>
   </head>
   <body>
-    <header>
-      <h1>gowasm</h1>
-      <p>Browser shell for the Rust-powered Go runtime</p>
-    </header>
-
     <main>
-      <section class="panel">
-        <div class="panel-header">Go Source</div>
-        <textarea id="source" spellcheck="false"></textarea>
-        <div class="toolbar">
-          <button id="run-button" type="button">Run</button>
-          <button id="test-button" class="secondary" type="button">Test</button>
-          <button id="format-button" class="secondary" type="button">Format</button>
-          <button id="lint-button" class="secondary" type="button">Lint</button>
-          <span id="status">Booting worker…</span>
-        </div>
+      <section class="hero">
+        <h1>gowasm</h1>
+        <p>
+          Browser shell for the Rust-powered Go runtime. The worker now targets the real Wasm
+          engine artifact when it is built into <code>web/generated</code>.
+        </p>
       </section>
 
-      <section class="panel">
-        <div class="panel-header">Output</div>
-        <pre id="output" class="output"></pre>
+      <section class="workspace">
+        <article class="panel">
+          <div class="toolbar">
+            <strong>main.go</strong>
+            <button id="run-button" type="button">Run Worker Shell</button>
+          </div>
+          <textarea id="source"></textarea>
+          <p class="note">
+            Run <code>scripts/build-web.sh</code> through the project build flow to refresh the
+            Wasm artifact. <span class="accent">The worker now expects a real engine module.</span>
+          </p>
+        </article>
+
+        <article class="panel">
+          <div class="toolbar">
+            <strong>Output</strong>
+            <span class="status" id="status">Booting worker…</span>
+          </div>
+          <pre id="output"></pre>
+        </article>
       </section>
     </main>
 

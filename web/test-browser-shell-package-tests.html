@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>gowasm browser shell editor tests</title>
+<title>gowasm browser shell package-test regression</title>
 <style>
   body {
     margin: 0;
@@ -51,14 +51,15 @@
 </style>
 </head>
 <body>
-<h1>browser shell editor tests</h1>
+<h1>browser shell package-test regression</h1>
 <p>
-  This harness drives the real <code>index.html</code> editor surface through sidebar collapse/expand,
-  tab creation, tab switching, dirty-state indicators, and tab close behavior.
+  This harness seeds <code>main.go</code> and <code>main_test.go</code> through the real
+  <code>index.html</code> editor, clicks the package-test button, and asserts the current
+  blocking diagnostic for same-package tests targeting <code>main.go</code>.
 </p>
 <div id="results"></div>
 <div id="summary"></div>
-<iframe id="shell-frame" title="browser shell editor target" src="about:blank"></iframe>
-<script type="module" src="./test-browser-shell-editor-runner.js"></script>
+<iframe id="shell-frame" title="browser shell package-test target" src="about:blank"></iframe>
+<script type="module" src="./test-browser-shell-package-tests-runner.js"></script>
 </body>
 </html>

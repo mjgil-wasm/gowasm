@@ -10,6 +10,7 @@
 
 import { createRequire } from "node:module";
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 const require = createRequire(import.meta.url);
 
@@ -33,11 +34,23 @@ if (!puppeteer) {
 }
 
 const BASE = process.env.IDE_TEST_URL || "http://localhost:8765";
-const browserExecutable =
-  process.env.GOWASM_CHROME_BIN ||
-  process.env.PUPPETEER_EXECUTABLE_PATH ||
-  ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"]
-    .find((candidate) => existsSync(candidate));
+const browserCandidates = [
+  process.env.GOWASM_CHROME_BIN,
+  process.env.PUPPETEER_EXECUTABLE_PATH,
+  "/usr/bin/google-chrome",
+  "/usr/bin/google-chrome-stable",
+  "/usr/bin/chromium",
+  "/usr/bin/chromium-browser",
+  join(
+    process.env.HOME || "",
+    ".cache/puppeteer/chrome/linux-148.0.7778.97/chrome-linux64/chrome",
+  ),
+  join(
+    process.env.HOME || "",
+    ".cache/puppeteer/chrome-headless-shell/linux-148.0.7778.97/chrome-headless-shell-linux64/chrome-headless-shell",
+  ),
+  "/usr/bin/firefox",
+].filter((candidate, index, all) => candidate && all.indexOf(candidate) === index && existsSync(candidate));
 
 let browser;
 let page;
@@ -60,6 +73,67 @@ async function waitFor(selector, timeout = 5000) {
 
 async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function launchBrowser() {
+  let lastError = null;
+  for (const executablePath of browserCandidates) {
+    const isFirefox = executablePath.includes("firefox");
+    try {
+      return await puppeteer.launch({
+        headless: true,
+        executablePath,
+        ...(isFirefox
+          ? { browser: "firefox", protocol: "webDriverBiDi", args: ["--headless"] }
+          : { args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"] }),
+      });
+    } catch (error) {
+      lastError = error;
+      console.warn(`Skipping browser candidate ${executablePath}: ${error.message}`);
+    }
+  }
+  throw lastError || new Error("No browser executable could be launched");
+}
+
+async function openTreeFile(path) {
+  await page.waitForFunction(
+    (targetPath) => Array.from(document.querySelectorAll(".tree-node")).some((n) => n.dataset.path === targetPath),
+    { timeout: 5000 },
+    path,
+  );
+  await page.evaluate((targetPath) => {
+    const node = Array.from(document.querySelectorAll(".tree-node")).find((n) => n.dataset.path === targetPath);
+    if (!node) throw new Error(`tree node not found: ${targetPath}`);
+    node.click();
+  }, path);
+  await sleep(250);
+}
+
+async function replaceEditorText(text) {
+  await page.click(".cm-content");
+  await page.keyboard.down("Control");
+  await page.keyboard.press("a");
+  await page.keyboard.up("Control");
+  await page.keyboard.press("Backspace");
+  await page.keyboard.type(text);
+  await sleep(200);
+}
+
+async function saveEditor() {
+  await page.keyboard.down("Control");
+  await page.keyboard.press("s");
+  await page.keyboard.up("Control");
+  await sleep(300);
+}
+
+async function createFile(name, contents) {
+  await page.click("#new-file-btn");
+  await waitFor("#modal:not([hidden])");
+  await page.fill("#modal-input", name);
+  await page.click("#modal-confirm");
+  await sleep(250);
+  await replaceEditorText(contents);
+  await saveEditor();
 }
 
 async function runTests() {
@@ -100,21 +174,8 @@ async function runTests() {
   }
 
   // 4. Open a file and verify tab appears
-  await page.waitForFunction(
-    () => Array.from(document.querySelectorAll(".tree-node")).some((n) => n.dataset.path === "main.go"),
-    { timeout: 5000 },
-  );
-
-  const mainGoClicked = await page.evaluate(() => {
-    const nodes = Array.from(document.querySelectorAll(".tree-node"));
-    const mainGo = nodes.find((n) => n.dataset.path === "main.go");
-    if (mainGo) {
-      mainGo.click();
-      return true;
-    }
-    return false;
-  });
-  assert(mainGoClicked, "clicked main.go in file tree");
+  await openTreeFile("main.go");
+  assert(true, "clicked main.go in file tree");
 
   await sleep(300);
 
@@ -198,6 +259,72 @@ async function runTests() {
   });
   assert(cssHasResponsive, "CSS responsive breakpoint exists");
 
+  // 11. Browser regression for unsupported standard-library testing package
+  await openTreeFile("main.go");
+  await replaceEditorText(`package main
+
+import "fmt"
+
+// Add takes two integers and returns their sum.
+func Add(a, b int) int {
+	return a + b
+}
+
+func main() {
+	result := Add(5, 7)
+	fmt.Printf("5 + 7 = %d\n", result)
+}
+`);
+  await saveEditor();
+
+  await createFile("main_test.go", `package main
+
+import "testing"
+
+func TestAdd(t *testing.T) {
+	// Table-driven tests are the standard way to write tests in Go
+	tests := []struct {
+		name     string
+		a        int
+		b        int
+		expected int
+	}{
+		{"positive numbers", 2, 3, 5},
+		{"negative numbers", -2, -4, -6},
+		{"mixed numbers", -1, 5, 4},
+		{"zeroes", 0, 0, 0},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := Add(tc.a, tc.b)
+			if result != tc.expected {
+				t.Errorf("Add(%d, %d) = %d; want %d", tc.a, tc.b, result, tc.expected)
+			}
+		})
+	}
+}
+`);
+
+  await page.click("#test-btn");
+  await page.waitForFunction(
+    () => {
+      const text = document.getElementById("terminal-history")?.innerText || "";
+      return text.includes("[tests failed]") || text.includes("[tests passed]");
+    },
+    { timeout: 20000 },
+  );
+
+  const terminalText = await page.evaluate(
+    () => document.getElementById("terminal-history")?.innerText || "",
+  );
+  assert(terminalText.includes("$ go test ./... -v"), "test button logs the go test command");
+  assert(
+    terminalText.includes("import `testing` could not be resolved while loading package `example.com/app`"),
+    "standard-library testing import failure is shown in terminal output",
+  );
+  assert(terminalText.includes("[tests failed]"), "unsupported testing package path reports test failure");
+
   console.log("\n--- Summary ---");
   console.log(`Passed: ${passed}`);
   console.log(`Failed: ${failed}`);
@@ -206,11 +333,7 @@ async function runTests() {
 
 async function main() {
   try {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-      ...(browserExecutable ? { executablePath: browserExecutable } : {}),
-    });
+    browser = await launchBrowser();
     page = await browser.newPage();
     page.setViewport({ width: 1280, height: 900 });
 

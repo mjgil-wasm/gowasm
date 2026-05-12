@@ -627,15 +627,11 @@ async function addWorkspaceFile(doc, path, contents) {
 
 export async function setWorkspaceFileContents(doc, path, contents) {
   await selectWorkspaceFile(doc, path);
-  const view = doc.defaultView._codeEditorView;
-  if (!view) {
-    throw new Error("CodeMirror editor not available");
-  }
-  view.dispatch({
-    changes: { from: 0, to: view.state.doc.length, insert: contents },
-  });
+  const source = control(doc, "source");
+  source.value = contents;
+  dispatch(doc, source, "input");
   await waitFor(
-    () => view.state.doc.toString() === contents,
+    () => control(doc, "source").value === contents,
     `workspace file ${path} edited`,
     doc,
   );
@@ -683,11 +679,7 @@ export function click(doc, id) {
 }
 
 export function selectedSource(doc) {
-  const view = doc.defaultView._codeEditorView;
-  if (!view) {
-    throw new Error("CodeMirror editor not available");
-  }
-  return view.state.doc.toString();
+  return control(doc, "source").value;
 }
 
 export function control(doc, id) {
