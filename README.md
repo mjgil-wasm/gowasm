@@ -136,5 +136,4 @@ supported target.
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for
-details.
+Licensed under the ISC License. See [LICENSE](./LICENSE) for details.
