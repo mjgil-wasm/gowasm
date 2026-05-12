@@ -128,5 +128,21 @@ assert(css.includes(".editor-tab .tab-indicator"), "CSS styles tab indicators");
 assert(css.includes(".tab-indicator.dirty"), "CSS styles dirty indicator");
 assert(css.includes(".tab-indicator.saved"), "CSS styles saved indicator");
 
+// 8. Verify Run and Build both output to the terminal panel
+const mainSrc = readFileSync("./main.js", "utf8");
+assert(mainSrc.includes('case "run_result":'), "main.js handles run_result");
+assert(mainSrc.includes('case "diagnostics":'), "main.js handles diagnostics (compile)");
+assert(!mainSrc.includes("logTerminal("), "no stale logTerminal calls remain");
+assert(mainSrc.includes('kind: "compile"'), "Build sends compile request");
+assert(mainSrc.includes('kind: "run"'), "Run sends run request");
+assert(mainSrc.includes("logOutput(stdout)"), "Run stdout goes through logOutput");
+assert(mainSrc.includes("$ go build"), "Build command logged to terminal");
+assert(mainSrc.includes("$ go run"), "Run command logged to terminal");
+
+// 9. Verify engine worker has compile in allowed kinds with cache bust
+const workerSrc = readFileSync("../engine-worker.js", "utf8");
+assert(securitySrc.includes('"compile"'), "engine worker security allows compile");
+assert(workerSrc.includes("browser-capability-security.js?v=2"), "engine worker cache-busts security module");
+
 console.log(`\nDone — ${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

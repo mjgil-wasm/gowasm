@@ -4,12 +4,12 @@ import {
   disposeFetchSessions,
   formatError,
   withHostClock,
-} from "./engine-worker-runtime.js";
+} from "./engine-worker-runtime.js?v=2";
 import {
   validateWasmBufferWindow,
   validateWorkerRequestEnvelope,
-} from "./browser-capability-security.js";
-import { buildModuleResumeRequest } from "./engine-worker-modules.js";
+} from "./browser-capability-security.js?v=2";
+import { buildModuleResumeRequest } from "./engine-worker-modules.js?v=2";
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();

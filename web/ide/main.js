@@ -159,7 +159,7 @@ function handleWorkerMessage(data) {
     case "run_result": {
       activeRequestKind = null;
       const stdout = data.stdout || "";
-      if (stdout) logTerminal(stdout);
+      if (stdout) logOutput(stdout);
       const hasErrors = data.diagnostics?.some((d) => d.severity === "error");
       setOutputStatus(hasErrors ? "Run had errors" : "Finished");
       setStatus(hasErrors ? "Run had errors" : "Run complete", hasErrors ? "error" : "ok");
@@ -498,7 +498,7 @@ runBtn.addEventListener("click", async () => {
     return;
   }
   clearTerminal();
-  logTerminal(`$ go run ${entryPath}`);
+  logOutput(`$ go run ${entryPath}`);
   setStatus("Running…");
   sendWorkerRequest("run", { kind: "run", entry_path: entryPath, files });
 });
@@ -754,7 +754,7 @@ terminalInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     const line = terminalInput.value;
     terminalInput.value = "";
-    logTerminal("$ " + line);
+    logOutput("$ " + line);
     stdinQueue.push(line + "\n");
     // In a full implementation, stdin would be forwarded to the WASM runtime.
     // The current engine worker model doesn't expose stdin directly,
