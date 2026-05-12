@@ -19,7 +19,6 @@ const newFileBtn = document.getElementById("new-file-btn");
 const newFolderBtn = document.getElementById("new-folder-btn");
 const saveBtn = document.getElementById("save-btn");
 const editorStatus = document.getElementById("editor-status");
-const buildOutput = document.getElementById("build-output");
 const terminalHistory = document.getElementById("terminal-history");
 const terminalInput = document.getElementById("terminal-input");
 const clearOutputBtn = document.getElementById("clear-output-btn");
@@ -42,8 +41,7 @@ const importZipBtn = document.getElementById("import-zip-btn");
 const exportZipBtn = document.getElementById("export-zip-btn");
 const zipImportInput = document.getElementById("zip-import-input");
 const initModuleBtn = document.getElementById("init-module-btn");
-const outputTabs = document.querySelectorAll(".output-tab");
-const outputPanes = document.querySelectorAll(".output-pane");
+
 
 /* ─── State ─── */
 let dirHandle = null;
@@ -69,7 +67,7 @@ function setStatus(text, type = "") {
   statusEl.className = type;
 }
 
-function logBuild(text, className = "") {
+function logOutput(text, className = "") {
   const line = document.createElement("div");
   if (className) line.className = className;
   // Parse file:line:col patterns into clickable links
@@ -105,21 +103,8 @@ function logBuild(text, className = "") {
   if (lastIndex === 0) {
     line.textContent = text;
   }
-  buildOutput.appendChild(line);
-  buildOutput.scrollTop = buildOutput.scrollHeight;
-}
-
-function logTerminal(text, className = "") {
-  const span = document.createElement("span");
-  if (className) span.className = className;
-  span.textContent = text;
-  terminalHistory.appendChild(span);
-  terminalHistory.appendChild(document.createTextNode("\n"));
+  terminalHistory.appendChild(line);
   terminalHistory.scrollTop = terminalHistory.scrollHeight;
-}
-
-function clearBuild() {
-  buildOutput.innerHTML = "";
 }
 
 function clearTerminal() {
@@ -137,7 +122,7 @@ function setEditorStatus(text) {
 /* ─── Engine worker ─── */
 function initWorker() {
   if (worker) return;
-  worker = new Worker("../engine-worker.js", { type: "module" });
+  worker = new Worker("../engine-worker.js?v=2", { type: "module" });
   worker.addEventListener("message", ({ data }) => {
     handleWorkerMessage(data);
   });
@@ -158,7 +143,7 @@ function handleWorkerMessage(data) {
   }
   if (data?.kind === "fatal") {
     setStatus("Engine fatal: " + data.message, "error");
-    logBuild("Fatal: " + data.message, "error");
+    logOutput("Fatal: " + data.message, "error");
     activeRequestKind = null;
     syncControls();
     return;
@@ -180,7 +165,7 @@ function handleWorkerMessage(data) {
       setStatus(hasErrors ? "Run had errors" : "Run complete", hasErrors ? "error" : "ok");
       if (data.diagnostics?.length) {
         for (const d of data.diagnostics) {
-          logBuild(formatDiagnostic(d), d.severity);
+          logOutput(formatDiagnostic(d), d.severity);
         }
       }
       syncControls();
@@ -190,8 +175,8 @@ function handleWorkerMessage(data) {
       activeRequestKind = null;
       const stdout = data.stdout || "";
       const passed = data.passed ?? false;
-      if (stdout) logBuild(stdout);
-      logBuild(`\n[tests ${passed ? "passed" : "failed"}]`, passed ? "ok" : "error");
+      if (stdout) logOutput(stdout);
+      logOutput(`\n[tests ${passed ? "passed" : "failed"}]`, passed ? "ok" : "error");
       setStatus(passed ? "Tests passed" : "Tests failed", passed ? "ok" : "error");
       syncControls();
       break;
@@ -215,10 +200,10 @@ function handleWorkerMessage(data) {
       }
       if (data.diagnostics?.length) {
         for (const d of data.diagnostics) {
-          logBuild(formatDiagnostic(d), d.severity);
+          logOutput(formatDiagnostic(d), d.severity);
         }
       } else {
-        logBuild("Formatted successfully", "ok");
+        logOutput("Formatted successfully", "ok");
       }
       setStatus("Formatted", "ok");
       syncControls();
@@ -228,10 +213,10 @@ function handleWorkerMessage(data) {
       activeRequestKind = null;
       if (data.diagnostics?.length) {
         for (const d of data.diagnostics) {
-          logBuild(formatDiagnostic(d), d.severity);
+          logOutput(formatDiagnostic(d), d.severity);
         }
       } else {
-        logBuild("No issues found", "ok");
+        logOutput("No issues found", "ok");
       }
       setStatus("Vet complete", "ok");
       syncControls();
@@ -241,10 +226,10 @@ function handleWorkerMessage(data) {
       activeRequestKind = null;
       if (data.diagnostics?.length) {
         for (const d of data.diagnostics) {
-          logBuild(formatDiagnostic(d), d.severity);
+          logOutput(formatDiagnostic(d), d.severity);
         }
       } else {
-        logBuild("Build succeeded", "ok");
+        logOutput("Build succeeded", "ok");
       }
       setStatus(data.diagnostics?.length ? "Build failed" : "Build succeeded", data.diagnostics?.length ? "error" : "ok");
       syncControls();
@@ -525,8 +510,8 @@ buildBtn.addEventListener("click", async () => {
     setStatus("No Go entry file found", "error");
     return;
   }
-  clearBuild();
-  logBuild(`$ go build ${entryPath}`);
+  clearTerminal();
+  logOutput(`$ go build ${entryPath}`);
   setStatus("Building…");
   sendWorkerRequest("compile", { kind: "compile", entry_path: entryPath, files });
 });
@@ -538,22 +523,22 @@ testBtn.addEventListener("click", async () => {
     setStatus("No Go entry file found", "error");
     return;
   }
-  clearBuild();
-  logBuild(`$ go test ./... -v`);
+  clearTerminal();
+  logOutput(`$ go test ./... -v`);
   setStatus("Testing…");
   sendWorkerRequest("test_package", { kind: "test_package", target_path: entryPath, files });
 });
 
 formatBtn.addEventListener("click", async () => {
   const files = await collectExecutionFiles();
-  clearBuild();
+  clearTerminal();
   setStatus("Formatting…");
   sendWorkerRequest("format", { kind: "format", files });
 });
 
 vetBtn.addEventListener("click", async () => {
   const files = await collectExecutionFiles();
-  clearBuild();
+  clearTerminal();
   setStatus("Vetting…");
   sendWorkerRequest("lint", { kind: "lint", files });
 });
@@ -565,19 +550,11 @@ abortBtn.addEventListener("click", () => {
 });
 
 clearOutputBtn.addEventListener("click", () => {
-  clearBuild();
+  clearTerminal();
   clearTerminal();
 });
 
-/* ─── Output tabs ─── */
-outputTabs.forEach((tab) => {
-  tab.addEventListener("click", () => {
-    outputTabs.forEach((t) => t.classList.remove("active"));
-    outputPanes.forEach((p) => p.classList.remove("active"));
-    tab.classList.add("active");
-    document.getElementById(tab.dataset.target).classList.add("active");
-  });
-});
+
 
 /* ─── Context menu ─── */
 function showContextMenu(e, path, kind) {

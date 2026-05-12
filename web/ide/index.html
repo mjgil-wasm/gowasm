@@ -31,7 +31,6 @@
       <div id="editor-tabs" class="editor-tabs"></div>
       <div class="editor-wrapper">
         <div id="line-numbers" class="line-numbers">1</div>
-        <textarea id="editor" spellcheck="false" placeholder="// Select or create a Go file to start editing"></textarea>
       </div>
       <div class="panel-toolbar editor-toolbar">
         <button id="save-btn" class="secondary">Save</button>
@@ -41,12 +40,7 @@
 
     <div class="panel" id="output-panel">
       <div class="panel-header">Output</div>
-      <div class="output-tabs">
-        <button class="output-tab active" data-target="build-output">Build</button>
-        <button class="output-tab" data-target="terminal-output">Terminal</button>
-      </div>
-      <div id="build-output" class="output-pane active"></div>
-      <div id="terminal-output" class="output-pane">
+      <div id="terminal-output" class="output-pane active">
         <div id="terminal-history" class="terminal-history"></div>
         <div class="terminal-input-line">
           <span class="terminal-prompt">$</span>
