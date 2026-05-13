@@ -15,6 +15,7 @@ PORTLESS_BIN=""
 PORTLESS_NODE_BIN=""
 PORTLESS_STATE_DIR="${PORTLESS_STATE_DIR:-$HOME/.portless}"
 WEB_DIR="$(pwd)"
+PORTLESS_APP_ARGS=("$@")
 
 cleanup() {
   echo -e "\n🛑 Stopping server..."
@@ -129,7 +130,7 @@ fi
 
 if [[ "$USE_PORTLESS" == "true" ]]; then
   echo "🚀 Starting gowasm IDE via Portless..."
-  run_portless gowasm env GOWASM_WEB_DIR="$WEB_DIR" bash -c 'python3 -m http.server "$PORT" --directory "$GOWASM_WEB_DIR"' &
+  run_portless gowasm "${PORTLESS_APP_ARGS[@]}" env GOWASM_WEB_DIR="$WEB_DIR" bash -c 'python3 -m http.server "$PORT" --directory "$GOWASM_WEB_DIR"' &
   PID=$!
   PORTLESS_URL="$(run_portless get gowasm)"
   PORTLESS_SCHEME="${PORTLESS_URL%%://*}"
