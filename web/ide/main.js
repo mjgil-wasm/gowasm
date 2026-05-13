@@ -43,6 +43,10 @@ const zipImportInput = document.getElementById("zip-import-input");
 const initModuleBtn = document.getElementById("init-module-btn");
 const themeBtn = document.getElementById("theme-btn");
 const themeDropdown = document.getElementById("theme-dropdown");
+const ciSummary = document.getElementById("ci-summary");
+const searchParams = new URLSearchParams(window.location.search);
+const ciMode = searchParams.has("ci");
+const ciCompileSmokeEnabled = searchParams.has("ci_compile_smoke");
 
 
 /* ─── State ─── */
@@ -62,6 +66,9 @@ let stdinQueue = [];
 let awaitingInput = false;
 let autosaveTimer = null;
 const AUTOSAVE_DELAY = 500;
+let initComplete = false;
+let ciCompileSmokeStarted = false;
+let ciCompileSmokeFinished = false;
 
 /* ─── Helpers ─── */
 function setStatus(text, type = "") {
@@ -121,6 +128,50 @@ function setEditorStatus(text) {
   editorStatus.textContent = text;
 }
 
+function completeCiSummary(text, className = "") {
+  if (!ciSummary || ciCompileSmokeFinished) return;
+  ciCompileSmokeFinished = true;
+  ciSummary.hidden = false;
+  ciSummary.className = className;
+  ciSummary.textContent = text;
+  if (ciMode) {
+    void fetch("/__gowasm_ci_complete", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ elementId: "ci-summary", className, text }),
+    });
+  }
+}
+
+function maybeFinishCiCompileSmoke() {
+  if (!ciCompileSmokeEnabled || !ciCompileSmokeStarted || ciCompileSmokeFinished) return;
+  const status = statusEl.textContent.trim();
+  const terminal = terminalHistory.textContent.trim();
+  const fatalCompileKindError = 'Fatal: unsupported worker request kind: "compile"';
+  if (status === "Build succeeded" && terminal.includes("$ go build main.go") && !terminal.includes(fatalCompileKindError)) {
+    completeCiSummary("all IDE compile tests passed (3 assertions)", "pass");
+    return;
+  }
+  completeCiSummary(
+    `IDE compile smoke failed\nstatus: ${status || "<empty>"}\nterminal:\n${terminal || "<empty>"}`,
+    "fail",
+  );
+}
+
+function maybeStartCiCompileSmoke() {
+  if (
+    !ciCompileSmokeEnabled ||
+    ciCompileSmokeStarted ||
+    !initComplete ||
+    !workerReady ||
+    activeRequestKind
+  ) {
+    return;
+  }
+  ciCompileSmokeStarted = true;
+  requestBuild();
+}
+
 /* ─── Engine worker ─── */
 function initWorker() {
   if (worker) return;
@@ -143,6 +194,7 @@ function handleWorkerMessage(data) {
     workerReady = true;
     setStatus("Engine ready");
     syncControls();
+    maybeStartCiCompileSmoke();
     return;
   }
   if (data?.kind === "fatal") {
@@ -150,6 +202,7 @@ function handleWorkerMessage(data) {
     logOutput("Fatal: " + data.message, "error");
     activeRequestKind = null;
     syncControls();
+    maybeFinishCiCompileSmoke();
     return;
   }
   if (data?.kind === "cancelled") {
@@ -237,6 +290,7 @@ function handleWorkerMessage(data) {
       }
       setStatus(data.diagnostics?.length ? "Build failed" : "Build succeeded", data.diagnostics?.length ? "error" : "ok");
       syncControls();
+      maybeFinishCiCompileSmoke();
       break;
     }
     default:
@@ -495,6 +549,10 @@ function findEntryPath(files) {
 }
 
 runBtn.addEventListener("click", async () => {
+  await requestRun();
+});
+
+async function requestRun() {
   const files = await collectExecutionFiles();
   const entryPath = findEntryPath(files);
   if (!entryPath) {
@@ -505,20 +563,25 @@ runBtn.addEventListener("click", async () => {
   logOutput(`$ go run ${entryPath}`);
   setStatus("Running…");
   sendWorkerRequest("run", { kind: "run", entry_path: entryPath, files });
-});
+}
 
 buildBtn.addEventListener("click", async () => {
+  await requestBuild();
+});
+
+async function requestBuild() {
   const files = await collectExecutionFiles();
   const entryPath = findEntryPath(files);
   if (!entryPath) {
     setStatus("No Go entry file found", "error");
+    maybeFinishCiCompileSmoke();
     return;
   }
   clearTerminal();
   logOutput(`$ go build ${entryPath}`);
   setStatus("Building…");
   sendWorkerRequest("compile", { kind: "compile", entry_path: entryPath, files });
-});
+}
 
 testBtn.addEventListener("click", async () => {
   const files = await collectExecutionFiles();
@@ -815,6 +878,8 @@ async function init() {
 
   await renderTree();
   syncControls();
+  initComplete = true;
+  maybeStartCiCompileSmoke();
 }
 
 init().catch((e) => {

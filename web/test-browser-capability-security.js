@@ -82,6 +82,11 @@ function testWasmBufferBounds(assert) {
 function testWorkerEnvelopeValidation(assert) {
   validateWorkerRequestEnvelope({ kind: "boot" });
   validateWorkerRequestEnvelope({
+    kind: "compile",
+    entry_path: "main.go",
+    files: [{ path: "main.go", contents: "package main\nfunc main() {}\n" }],
+  });
+  validateWorkerRequestEnvelope({
     kind: "run",
     entry_path: "main.go",
     files: [{ path: "main.go", contents: "package main\nfunc main() {}\n" }],
@@ -98,6 +103,22 @@ function testWorkerEnvelopeValidation(assert) {
     rejection.includes("load_module_graph.modules[0].module_path"),
     "worker envelope validation rejects malformed module requests",
     rejection || "expected malformed module request rejection",
+  );
+
+  rejection = "";
+  try {
+    validateWorkerRequestEnvelope({
+      kind: "compile",
+      entry_path: "",
+      files: [{ path: "main.go", contents: "package main\nfunc main() {}\n" }],
+    });
+  } catch (error) {
+    rejection = error?.message || String(error);
+  }
+  assert(
+    rejection.includes("compile.entry_path"),
+    "worker envelope validation rejects malformed compile requests",
+    rejection || "expected malformed compile request rejection",
   );
 }
 

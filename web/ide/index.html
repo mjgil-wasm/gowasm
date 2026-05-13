@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>gowasm — Go IDE</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
   <header>
@@ -37,9 +37,7 @@
         </div>
       </div>
       <div id="editor-tabs" class="editor-tabs"></div>
-      <div class="editor-wrapper">
-        <div id="line-numbers" class="line-numbers">1</div>
-      </div>
+      <div class="editor-wrapper"></div>
       <div class="panel-toolbar editor-toolbar">
         <button id="save-btn" class="secondary">Save</button>
         <span id="editor-status" class="status"></span>
@@ -97,7 +95,8 @@
 
   <div id="snippets" class="snippets" hidden></div>
   <input type="file" id="zip-import-input" accept=".zip" hidden>
+  <pre id="ci-summary" hidden></pre>
 
-  <script type="module" src="main.js?v=3"></script>
+  <script type="module" src="main.js?v=4"></script>
 </body>
 </html>

@@ -108,6 +108,24 @@ jobs:
           GOWASM_CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
         run: bash ./scripts/check-browser-shell.sh
 
+  browser-ide:
+    name: browser IDE harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.94.1
+          targets: wasm32-unknown-unknown
+      - id: chrome
+        uses: browser-actions/setup-chrome@v1
+      - name: build web artifact
+        run: bash ./scripts/build-web.sh
+      - name: browser IDE harness
+        env:
+          GOWASM_CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+        run: bash ./scripts/check-browser-ide.sh
+
   browser-performance:
     name: browser performance budgets
     runs-on: ubuntu-latest

@@ -1,21 +1,9 @@
-import {
-  buildCapabilityResumeRequest,
-  CancelledRunError,
-  disposeFetchSessions,
-  formatError,
-  withHostClock,
-} from "./engine-worker-runtime.js";
-import {
-  validateWasmBufferWindow,
-  validateWorkerRequestEnvelope,
-} from "./browser-capability-security.js";
-import { buildModuleResumeRequest } from "./engine-worker-modules.js";
-
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 
 let enginePromise;
 let activeRunState = null;
+let workerRuntimePromise = null;
 
 self.addEventListener("message", ({ data }) => {
   void handleWorkerMessage(data);
@@ -31,6 +19,7 @@ async function handleWorkerMessage(data) {
   }
 
   try {
+    const { formatError, validateWorkerRequestEnvelope } = await loadWorkerRuntime();
     validateWorkerRequestEnvelope(data);
     const engine = await loadEngine();
     const response = await sendWorkerRequest(engine, data);
@@ -38,12 +27,15 @@ async function handleWorkerMessage(data) {
       self.postMessage(response);
     }
   } catch (error) {
-    if (error instanceof CancelledRunError) {
+    if (isCancelledRunError(error)) {
       return;
     }
+    const formatter = await loadWorkerRuntime()
+      .then((runtime) => runtime.formatError)
+      .catch(() => (fallbackError) => fallbackError?.message || String(fallbackError));
     self.postMessage({
       kind: "fatal",
-      message: formatError(error),
+      message: formatter(error),
     });
   }
 }
@@ -67,6 +59,7 @@ async function sendWorkerRequest(engine, request) {
     if (activeRunState === runState) {
       activeRunState = null;
     }
+    const { disposeFetchSessions } = await loadWorkerRuntime();
     disposeFetchSessions(runState);
     runState.abortCapability = null;
   }
@@ -74,6 +67,7 @@ async function sendWorkerRequest(engine, request) {
 
 function isExecutionRequest(request) {
   return (
+    request?.kind === "compile" ||
     request?.kind === "run" ||
     request?.kind === "test_package" ||
     request?.kind === "test_snippet"
@@ -106,6 +100,8 @@ async function loadEngine() {
 }
 
 async function createEngine() {
+  const { buildCapabilityResumeRequest, withHostClock, buildModuleResumeRequest } =
+    await loadWorkerRuntime();
   const url = new URL("./generated/gowasm_engine_wasm.wasm", self.location.href);
   const bytes = await fetch(url).then(async (response) => {
     if (!response.ok) {
@@ -155,6 +151,33 @@ async function createEngine() {
   };
 }
 
+async function loadWorkerRuntime() {
+  if (!workerRuntimePromise) {
+    const v = self.location.search || "";
+    workerRuntimePromise = Promise.all([
+      import(`./engine-worker-runtime.js${v}`),
+      import(`./browser-capability-security.js${v}`),
+      import(`./engine-worker-modules.js${v}`),
+    ]).then(([runtime, security, modules]) => ({
+      buildCapabilityResumeRequest: runtime.buildCapabilityResumeRequest,
+      buildModuleResumeRequest: modules.buildModuleResumeRequest,
+      disposeFetchSessions: runtime.disposeFetchSessions,
+      formatError: runtime.formatError,
+      validateWasmBufferWindow: security.validateWasmBufferWindow,
+      validateWorkerRequestEnvelope: security.validateWorkerRequestEnvelope,
+      withHostClock: runtime.withHostClock,
+    }));
+  }
+  return workerRuntimePromise;
+}
+
+function isCancelledRunError(error) {
+  return (
+    error?.name === "CancelledRunError" ||
+    error?.constructor?.name === "CancelledRunError"
+  );
+}
+
 function sendJsonRequest(exports, request) {
   const payload = encoder.encode(JSON.stringify(request));
   const ptr = exports.alloc_request_buffer(payload.length);
@@ -164,7 +187,21 @@ function sendJsonRequest(exports, request) {
     const status = exports.handle_request(ptr, payload.length);
     const responsePtr = exports.response_ptr();
     const responseLen = exports.response_len();
-    validateWasmBufferWindow(exports.memory, responsePtr, responseLen, "response buffer");
+    const memory = exports.memory;
+    if (!(memory?.buffer instanceof ArrayBuffer)) {
+      throw new Error("response buffer memory was unavailable");
+    }
+    const end = responsePtr + responseLen;
+    if (
+      !Number.isSafeInteger(responsePtr) ||
+      responsePtr < 0 ||
+      !Number.isSafeInteger(responseLen) ||
+      responseLen < 0 ||
+      !Number.isSafeInteger(end) ||
+      end > memory.buffer.byteLength
+    ) {
+      throw new Error("response buffer exceeded wasm memory bounds");
+    }
     const responseBytes = new Uint8Array(exports.memory.buffer, responsePtr, responseLen).slice();
     const response = JSON.parse(decoder.decode(responseBytes));
     exports.free_response_buffer(responsePtr, responseLen);

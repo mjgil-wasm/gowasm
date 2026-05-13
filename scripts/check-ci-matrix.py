@@ -16,6 +16,7 @@ REQUIRED_TOP_LEVEL_SNIPPETS = [
 
 REQUIRED_EXECUTABLE_SCRIPTS = [
     "scripts/check-fuzz-harness.sh",
+    "scripts/check-browser-ide.sh",
     "scripts/check-browser-worker.sh",
     "scripts/check-browser-shell.sh",
     "scripts/capture-browser-performance.sh",
@@ -52,6 +53,11 @@ REQUIRED_JOB_SNIPPETS = {
         "browser-actions/setup-chrome@v1",
         "bash ./scripts/build-web.sh",
         "bash ./scripts/check-browser-shell.sh",
+    ],
+    "browser-ide": [
+        "browser-actions/setup-chrome@v1",
+        "bash ./scripts/build-web.sh",
+        "bash ./scripts/check-browser-ide.sh",
     ],
     "browser-performance": [
         "browser-actions/setup-chrome@v1",
